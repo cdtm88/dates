@@ -28,11 +28,10 @@ live there as value types, so they are tested directly rather than through a sim
 SwiftUI and SwiftData layer stays thin: it stores components, maps models to snapshots, and
 hands the resulting plan to `UNUserNotificationCenter`.
 
-That split is also what made it possible to develop this on a machine without Xcode. The
-domain suite has been run and is green; the app layer has been syntax-checked but **not
-compiled**, because SwiftUI, SwiftData, EventKit and UserNotifications only build on Apple
-platforms. Expect to fix small compile errors on the first Xcode build —
-[`docs/xcode-handover.md`](docs/xcode-handover.md) lists exactly where I expect them.
+That split is also what made it possible to develop this on a machine without Xcode. CI now
+covers both halves: the domain suite runs on Linux in a Swift container, and a macOS runner
+builds the app and runs the simulator tests. See
+[`docs/xcode-handover.md`](docs/xcode-handover.md) before making changes.
 
 ## Building
 
@@ -76,8 +75,8 @@ xcodebuild test -project Dates.xcodeproj -scheme Dates \
   -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
-Current state: **70 of 70 DatesKit tests pass.** The 15 tests in `DatesTests/` have never been
-executed — they were written against APIs that cannot run here.
+Current state: **70 of 70 DatesKit tests pass on Linux, and 16 of 16 DatesTests pass on an
+iPhone simulator.** Both suites run on every pull request.
 
 ## Decisions worth knowing
 

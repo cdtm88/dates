@@ -1,98 +1,75 @@
 # Handover: picking this up in Xcode
 
-You are inheriting Milestone 1 of the Dates PRD — phases 01 to 04 — built end to end on a
-Linux container with no Xcode, no simulator, and no Apple SDKs. Read this before you build.
+You are inheriting Milestone 1 of the Dates PRD — phases 01 to 04.
 
-## The one thing that matters
+## Status
 
-**The domain layer is proven. The app layer has never been compiled.**
+Milestone 1 was written on a Linux container with no Xcode and no Apple SDKs, so for a while
+the app layer was unverified. **That is no longer true.** CI now builds the app on a macOS
+runner and runs the full test suite on a simulator:
 
-`DatesKit` is a Foundation-only Swift package holding every rule the app can be wrong about:
-annual-date maths, leap-day resolution, the local-midnight rollover, age calculation, offset
-inheritance, list ordering and search, and the entire notification plan. Its 70 tests were run
-on Swift 6.1.2 for Linux and all pass.
+- `DatesKit` — 70 tests, run on Linux in a Swift container. Green.
+- `Dates/` + `DatesTests/` — builds under Xcode, and 16 tests pass on an iPhone simulator.
 
-`Dates/` — the SwiftUI views, SwiftData models, and the `UNUserNotificationCenter` wrapper —
-was written against APIs that do not exist on Linux. Every file parses (`swiftc -frontend
--parse` is clean across all 23), but nothing was type-checked. Assume there are compile errors
-and budget your first session for them. They should be shallow: wrong initialiser overloads,
-concurrency diagnostics, macro expansion complaints. Nothing structural is expected.
+Both run on every pull request via `.github/workflows/ci.yml`. So the codebase compiles and
+its behavioural tests pass; what remains unverified is the visual and interaction layer, which
+needs eyes on a simulator or device.
 
-Do not treat a compile error as evidence the design is wrong. Fix the call site.
+This document was originally a list of predicted compile errors. Every one of them turned out
+to be fine — the optional to-many `@Relationship` with an explicit inverse, the `@ModelActor`
+macro, and the `Query(FetchDescriptor:animation:)` overload all worked as written. What
+follows is what is actually still worth knowing.
 
-## First moves
+## Where the logic lives, and why
+
+`DatesKit` is a Foundation-only package holding every rule the app can be wrong about: annual
+date maths, leap-day resolution, the local-midnight rollover, age calculation, offset
+inheritance, list ordering and search, and the entire notification plan. It has no dependency
+on SwiftUI, SwiftData or UserNotifications, which is why it tests in under a second on any
+machine.
+
+The app layer is deliberately thin: SwiftData models storing discrete date components, an
+`EventStore` that funnels every mutation through one place, an actor wrapping
+`UNUserNotificationCenter`, and the SwiftUI screens. Keep it that way. Anything a view computes
+about dates is a rule that escaped the tested layer.
+
+## Running it
 
 ```sh
 open Dates.xcodeproj          # iOS 17 target, iPhone only
-# select any iPhone simulator, Cmd-B
-```
+cd DatesKit && swift test     # domain suite, no Xcode needed
 
-Then, before touching anything else:
-
-```sh
-cd DatesKit && swift test     # must stay 70/70 green
-```
-
-If that suite breaks, you changed domain behaviour. Revert and reconsider — those tests encode
-PRD requirements, not implementation details. See "Invariants" below.
-
-Once the app builds:
-
-```sh
 xcodebuild test -project Dates.xcodeproj -scheme Dates \
-  -destination 'platform=iOS Simulator,name=iPhone 15'
+  -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
-That runs `DatesTests/` — 15 tests covering DATA-02, DATA-05, GROUP-02, GROUP-05, NOTIF-01,
-NOTIF-04, NOTIF-07. **They have never been executed.** Getting them green is the real
-acceptance gate for this milestone, more than the build succeeding.
+Signing is Automatic with no team set, so it opens without a paid account. The Apple Developer
+Program membership is still unpurchased — a hard blocker for Phase 08 and for on-device
+notification testing.
 
-## Where I expect the compile errors
-
-Ranked by how likely I think they are. These are the specific spots I could not verify.
-
-1. **`EventGroup.events` relationship.** `Dates/Models/EventGroup.swift` declares
-   `@Relationship(deleteRule: .nullify, inverse: \DateEvent.group) var events: [DateEvent]? = []`.
-   Optional to-many with an explicit inverse is the CloudKit-compatible shape, but SwiftData is
-   fussy here. If it complains, try a non-optional `[DateEvent]` first; only move the inverse
-   to `DateEvent.group` if that fails, and if you do, re-check Phase 06's CloudKit constraints.
-
-2. **`@ModelActor` on `EventSnapshotProvider`** in `Dates/Notifications/BackgroundRefresh.swift`.
-   The macro should generate `init(modelContainer:)`. If it does not expand as expected, replace
-   it with a plain actor that takes a `ModelContainer` and builds its own `ModelContext`.
-
-3. **`Query(FetchDescriptor<DateEvent>(predicate:), animation:)`** in `EventDetailView.init`.
-   I chose the descriptor overload deliberately over `Query(filter:)` because I was more
-   confident it exists. If it is wrong, `@Query(filter: #Predicate<DateEvent> { $0.uuid == id })`
-   is the alternative — but note you cannot capture an init parameter in a property wrapper
-   default, which is why it is assigned in `init` at all.
-
-4. **Concurrency diagnostics.** The project is Swift 5.9 language mode. `NotificationScheduler`
-   is an actor holding `any NotificationCenterProtocol`, which is not `Sendable`. In 5.9 that is
-   at most a warning. **If you raise the project to Swift 6 mode, expect real errors here** —
-   and the retroactive `extension UNUserNotificationCenter: NotificationCenterProtocol` will want
-   `@retroactive`. Do not raise the language mode as part of fixing the build; that is its own
-   piece of work.
-
-5. **`AppSettings` observation.** Its public properties are computed over private stored ones
-   specifically to avoid `didSet` on `@Observable` storage, which is unreliable. If the Settings
-   screen fails to react to a time change, this is the suspect — not the view.
-
-## Runtime issues that will not show up as compile errors
+## Things that will not show up as a failing build
 
 - **Picker tag types.** `EventListView` tags with `UUID?.none` and `Optional(group.uuid)`
   against a `UUID?` selection; `EventFormView` does the same. If a picker renders with nothing
-  selected, the tag type has drifted from the selection type. This fails silently.
+  selected, the tag type has drifted from the selection type. This fails *silently* — no
+  warning, no crash.
 - **Cold-launch notification taps.** `NotificationRouter.register()` is called from
-  `DatesApp.init()`, before any scene connects, precisely so a tap that launches the app is not
-  dropped. If you move it into a view's `.task`, cold-start deep links (NOTIF-10) will break
-  intermittently and you will not notice in the simulator.
+  `DatesApp.init()`, before any scene connects, so that a tap which launches the app is not
+  dropped. Moving it into a view's `.task` breaks cold-start deep links (NOTIF-10)
+  intermittently, and you will not notice in the simulator.
 - **`DayTicker`.** Sleeps until one second past local midnight, then republishes `now`. Its
   `Task` may be suspended across backgrounding, which is why `RootView` also calls `refresh()`
   on `.active`. If an event dated today stops holding the top of the list overnight (LIST-03),
   look here.
+- **`AppSettings` observation.** Its public properties are computed over private stored ones
+  specifically to avoid `didSet` on `@Observable` storage, which is unreliable. If the Settings
+  screen stops reacting to a time change, this is the suspect — not the view.
+- **A benign CoreData log line.** On a fresh install the test host logs
+  `addPersistentStore … Failed to create file; code = 2` followed by
+  `Recovery attempt … was successful!`. The parent directory does not exist yet and CoreData
+  creates it. It is noise, not a bug — do not chase it.
 - **AppIcon is an empty placeholder.** Expect a build warning. It blocks App Store submission
-  but not TestFlight-internal or simulator runs. Phase 08 problem.
+  but not TestFlight or simulator runs. Phase 08 problem.
 
 ## Invariants — do not "fix" these
 
@@ -109,54 +86,56 @@ means you are changing the product. `docs/verification.md` has the full reasonin
 | Cancellation matches on the `evt-{uuid}-` prefix, never on an enumerated offset list | `testEveryIdentifierForAnEventSharesItsCancellationPrefix` |
 | The scheduler never removes a request it did not schedule | `testTheSchedulerNeverTouchesRequestsItDoesNotOwn` |
 
-Two more that are structural rather than tested:
+One more that is structural rather than tested: **all writes go through `EventStore`.** That is
+the only reason NOTIF-07 holds — one place saves, one place reschedules, and the reschedule is
+awaited before the call returns. Add a mutation path in a view and that guarantee is gone.
 
-- **All writes go through `EventStore`.** That is the only reason NOTIF-07 holds — one place
-  saves, one place reschedules, and the reschedule is awaited before the call returns. If you
-  add a mutation path in a view, that guarantee is gone.
-- **Views never do date maths.** They call `EventSnapshot` / `EventFormatting`. Anything a view
-  computes about dates is a rule that escaped the tested layer.
+## Do not raise the Swift language mode as part of other work
 
-## Manual acceptance, once it builds
+The project is Swift 5.9 mode. `NotificationScheduler` is an actor holding a non-`Sendable`
+`any NotificationCenterProtocol`, and `extension UNUserNotificationCenter:
+NotificationCenterProtocol` is a retroactive conformance. Both are fine in 5.9 and both become
+real errors in Swift 6, where the conformance also wants `@retroactive`. Moving to Swift 6 is
+its own piece of work with its own PR.
 
-The PRD's phase done-criteria, as a script. Simulator is fine except where noted.
+## Manual acceptance — the part CI cannot do
 
-**Phase 01/02.** Add a date with year unknown → no age shown anywhere. Add one with a year →
-age appears on row and detail. Add 29 February with no year → detail shows 28 February in a
-non-leap year. Kill and relaunch → everything still there. Create a group, put a date in it,
-delete the group → the date survives in Ungrouped.
+The behaviour is tested. The interface is not. Run this on a simulator:
 
-**Phase 03.** Add a date for today → it sits at the top. Change the device clock to tomorrow →
-it moves to the bottom. Search by a partial name, with and without accents. Filter by group.
+**Phase 01/02.** Add a date with year unknown → no age anywhere. Add one with a year → age on
+row and detail. Add 29 February with no year → detail shows 28 February in a non-leap year.
+Kill and relaunch → everything still there. Create a group, put a date in it, delete the group
+→ the date survives in Ungrouped.
 
-**Phase 04.** First save should trigger the permission prompt — not launch. Grant it, then open
-Settings and check the queue read-out ("Scheduled *n* of 60"). Change the notification time and
-confirm the read-out rebuilds. Edit a date's day and confirm nothing still fires on the old day
-(the `DatesTests` NOTIF-07 tests cover this properly; the manual check is a sanity pass).
-Deny permission on a fresh install and confirm the app is still fully usable.
+**Phase 03.** Add a date for today → it sits at the top. Advance the device clock past midnight
+→ it moves to the bottom. Search a partial name, with and without accents. Filter by group.
+Check Dynamic Type at XXXL while you are here, even though that is Phase 07 — it is cheaper to
+find layout breaks now.
+
+**Phase 04.** First save should trigger the permission prompt, not launch. Grant it, open
+Settings, check the queue read-out ("Scheduled *n* of 60"). Change the notification time and
+confirm the read-out rebuilds. Deny permission on a fresh install and confirm the app is still
+fully usable.
 
 **On device only:** actual notification delivery, and background refresh (NOTIF-06), which iOS
 schedules at its own discretion and may never run when you want it to.
 
 ## What is deliberately absent
 
-- **Phases 05 to 08.** No import, no export, no CloudKit, no appearance setting, no release
-  work.
-- **UI-01 to UI-03 are Phase 07,** so there is no Light/Dark setting yet and the app follows the
+- **Phases 05 to 08.** No import, no export, no CloudKit, no appearance setting, no release work.
+- **UI-01 to UI-03 are Phase 07,** so there is no Light/Dark setting and the app follows the
   system. The PRD wants Light as the first-launch default.
 - **LIST-06 is partial.** The empty state shows all three entry routes, but Calendar and CSV
-  import are disabled buttons. They are present so that screen does not need redesigning when
-  Phase 05 lands.
-- **PERF-01 and PERF-02 are unverified** — both are device measurements on an iPhone 12 or
-  newer. The Linux timings in the test suite guard the algorithm, not the device figure.
+  import are disabled buttons — present so that screen does not need redesigning in Phase 05.
+- **PERF-01 and PERF-02 are unverified** — device measurements on an iPhone 12 or newer. The
+  timings in the test suites guard the algorithm, not the device figure.
 
-## Groundwork already done for later phases
+## Groundwork already in place
 
-- **Phase 06 (CloudKit).** The schema is already CloudKit-shaped: every attribute has a default
-  value, relationships are optional, and there are no unique constraints. Turning it on should
-  be a `cloudKitDatabase:` argument in `DatesModelContainer.makeContainer` plus the capability,
-  with no model migration. Keep it that way — adding a non-defaulted attribute now costs a
-  migration later.
+- **Phase 06 (CloudKit).** The schema is already CloudKit-shaped: every attribute has a default,
+  relationships are optional, no unique constraints. Turning it on should be a `cloudKitDatabase:`
+  argument in `DatesModelContainer.makeContainer` plus the capability, with no migration. Keep it
+  that way — adding a non-defaulted attribute now costs a migration later.
 - **Phase 05 (import).** `AnnualDate.init?` already rejects impossible dates including 29
   February against a non-leap year, which is exactly the per-row rejection reason CSV import
   needs for IMP-06. Import should build snapshots and go through `EventStore`, not write to the
@@ -169,25 +148,21 @@ the repo opens without tooling.
 
 The app target globs `Dates/`, but **XcodeGen resolves those globs when it runs**, writing
 explicit file references into the pbxproj. So adding a Swift file *does* require regenerating
-and committing the project. This is an easy one to miss, because a file added through Xcode's
-own UI builds fine on your machine and is simply absent for everyone else:
+and committing the project. This is easy to miss, because a file added through Xcode's own UI
+builds fine on your machine and is simply absent for everyone else:
 
 ```sh
 brew install xcodegen && xcodegen generate
 ```
 
-CI catches it — `Tools/check_project_sync.py` fails if a source on disk is not referenced by
-the committed project, or if the project references a file that no longer exists. Run it
-locally with `python3 Tools/check_project_sync.py`.
-
-Signing is Automatic with no team set, so it opens without a paid account. The Apple Developer
-Program membership is still unpurchased — a hard blocker for Phase 08 and for on-device
-notification testing.
+CI catches it — `Tools/check_project_sync.py` fails if a source on disk is not referenced by the
+committed project, or if the project references a file that no longer exists. Run it locally
+with `python3 Tools/check_project_sync.py`.
 
 ## Open with the user before going further
 
-1. The seeded group defaults (only Close family gets all three offsets) are my judgement call
-   from Job 2, not something the PRD specified. Worth confirming.
+1. The seeded group defaults (only Close family gets all three offsets) are a judgement call
+   from Job 2, not something the PRD specified.
 2. The 400-day scheduling window replaces the PRD's assumed 60 days. §9 explicitly said to tune
    it in Phase 04, and the reasoning is in `docs/verification.md`, but it is a visible change to
    a stated assumption.

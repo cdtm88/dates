@@ -1,11 +1,12 @@
 # Requirement verification — Milestone 1 (phases 01 to 04)
 
-Three levels of evidence appear below.
+Three levels of evidence appear below. Both test suites run on every pull request:
+`DatesKit` on a Linux container, `DatesTests` on a macOS runner against an iPhone simulator.
 
 - **Tested (Linux)** — a test in `DatesKit/Tests/` asserts it, and that test has been run and
   passes.
-- **Tested (Xcode)** — a test in `DatesTests/` asserts it. These have been written but never
-  executed, because they need SwiftData or UserNotifications.
+- **Tested (Xcode)** — a test in `DatesTests/` asserts it. These need SwiftData or
+  UserNotifications, and run on a macOS CI runner against an iPhone simulator.
 - **Implemented** — code exists and was reviewed, but nothing automated asserts it. Mostly UI,
   which needs a device or simulator to judge.
 
@@ -114,7 +115,5 @@ and it is correct for every other month without a second code path.
 - **LIST-06 is partially satisfied.** Two of the three entry routes are disabled placeholders
   until Phase 05.
 - **PERF-01 and PERF-02 are unverified.** Both are device measurements.
-- **The `DatesTests` suite has never run.** It needs Xcode. Treat a first green run there as
-  part of accepting this milestone.
-- **The app layer has never been compiled.** Only the domain package has. Small compile
-  errors on the first Xcode build are likely and expected.
+- **The interface itself is unreviewed.** Behaviour is tested and the app builds, but no one
+  has looked at a running screen. Layout, spacing, and Dynamic Type behaviour are unverified.
