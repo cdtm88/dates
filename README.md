@@ -49,8 +49,10 @@ To regenerate the project after adding files — [XcodeGen](https://github.com/y
 xcodegen generate
 ```
 
-Adding a source file under `Dates/` does not need a project edit; the target globs the
-directory. Regenerate only when targets, settings, or Info.plist keys change.
+The target globs `Dates/`, but XcodeGen resolves those globs when it runs — so **adding a
+Swift file does require regenerating and committing the project**, as well as any change to
+targets, settings, or Info.plist keys. CI enforces this: `Tools/check_project_sync.py` fails
+the build if a source on disk is not referenced by `Dates.xcodeproj`.
 
 ### Signing
 

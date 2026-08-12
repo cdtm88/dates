@@ -165,12 +165,20 @@ schedules at its own discretion and may never run when you want it to.
 ## Project mechanics
 
 `project.yml` is the source of truth; `Dates.xcodeproj` is generated from it and committed so
-the repo opens without tooling. The app target globs `Dates/`, so **adding a Swift file needs no
-project change**. Regenerate only when targets, build settings, or Info.plist keys change:
+the repo opens without tooling.
+
+The app target globs `Dates/`, but **XcodeGen resolves those globs when it runs**, writing
+explicit file references into the pbxproj. So adding a Swift file *does* require regenerating
+and committing the project. This is an easy one to miss, because a file added through Xcode's
+own UI builds fine on your machine and is simply absent for everyone else:
 
 ```sh
 brew install xcodegen && xcodegen generate
 ```
+
+CI catches it — `Tools/check_project_sync.py` fails if a source on disk is not referenced by
+the committed project, or if the project references a file that no longer exists. Run it
+locally with `python3 Tools/check_project_sync.py`.
 
 Signing is Automatic with no team set, so it opens without a paid account. The Apple Developer
 Program membership is still unpurchased — a hard blocker for Phase 08 and for on-device
