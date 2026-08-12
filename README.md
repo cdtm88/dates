@@ -16,7 +16,8 @@ Dates/               The iOS app: SwiftData models, notification scheduler, Swif
 DatesTests/          Tests that need SwiftData or UserNotifications. Xcode only.
 project.yml          XcodeGen spec — the source of truth for the project.
 Dates.xcodeproj/     Generated from project.yml and committed so the repo opens directly.
-docs/verification.md Requirement-by-requirement status.
+docs/verification.md   Requirement-by-requirement status.
+docs/xcode-handover.md Read this first if you are picking the work up in Xcode.
 ```
 
 ### Why the split
@@ -30,7 +31,8 @@ hands the resulting plan to `UNUserNotificationCenter`.
 That split is also what made it possible to develop this on a machine without Xcode. The
 domain suite has been run and is green; the app layer has been syntax-checked but **not
 compiled**, because SwiftUI, SwiftData, EventKit and UserNotifications only build on Apple
-platforms. Expect to fix small compile errors on the first Xcode build.
+platforms. Expect to fix small compile errors on the first Xcode build —
+[`docs/xcode-handover.md`](docs/xcode-handover.md) lists exactly where I expect them.
 
 ## Building
 
