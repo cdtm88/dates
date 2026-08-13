@@ -51,6 +51,17 @@
                ReferencedContainer = "container:Dates.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "1F2F1AD88DD1482C28FB56A8"
+               BuildableName = "DatesUITests.xctest"
+               BlueprintName = "DatesUITests"
+               ReferencedContainer = "container:Dates.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>

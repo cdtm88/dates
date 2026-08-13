@@ -14,6 +14,7 @@ DatesKit/            Foundation-only Swift package. Every rule the app can get w
   Tests/             70 tests, runnable on any Swift toolchain — no Xcode needed.
 Dates/               The iOS app: SwiftData models, notification scheduler, SwiftUI views.
 DatesTests/          Tests that need SwiftData or UserNotifications. Xcode only.
+DatesUITests/        XCUITest smoke of the acceptance flows, driving the real app.
 project.yml          XcodeGen spec — the source of truth for the project.
 Dates.xcodeproj/     Generated from project.yml and committed so the repo opens directly.
 docs/verification.md   Requirement-by-requirement status.
@@ -75,8 +76,11 @@ xcodebuild test -project Dates.xcodeproj -scheme Dates \
   -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
-Current state: **70 of 70 DatesKit tests pass on Linux, and 16 of 16 DatesTests pass on an
-iPhone simulator.** Both suites run on every pull request.
+Current state: **70 of 70 DatesKit tests pass on Linux, 20 of 20 DatesTests and 5 of 5
+DatesUITests pass on an iPhone simulator.** All suites run on every pull request. The UI
+suite launches the real app with `--uitest` (an empty in-memory store) and drives the
+acceptance flows: first launch, creating a date, 29 February handling, and the reminder
+queue read-out in Settings.
 
 ## Decisions worth knowing
 

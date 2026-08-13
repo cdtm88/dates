@@ -14,8 +14,11 @@ struct DatesApp: App {
     private let container: ModelContainer
 
     init() {
+        // UI tests pass `--uitest` so every run starts from an empty in-memory store
+        // rather than whatever the previous run left on disk.
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("--uitest")
         do {
-            container = try DatesModelContainer.makeContainer()
+            container = try DatesModelContainer.makeContainer(inMemory: isUITesting)
         } catch {
             // Falling back to memory keeps the app usable for the session rather than
             // crashing on launch. The user sees their data missing, which is bad, but a

@@ -9,11 +9,16 @@ the app layer was unverified. **That is no longer true.** CI now builds the app 
 runner and runs the full test suite on a simulator:
 
 - `DatesKit` — 70 tests, run on Linux in a Swift container. Green.
-- `Dates/` + `DatesTests/` — builds under Xcode, and 16 tests pass on an iPhone simulator.
+- `Dates/` + `DatesTests/` — builds under Xcode, and 20 tests pass on an iPhone simulator.
+- `DatesUITests/` — 5 XCUITest smoke tests drive the built app in the simulator: the empty
+  state, event creation end-to-end (including the notification permission prompt), 29
+  February handling in the form, and the Settings queue read-out. The app launches with
+  `--uitest`, which swaps in an empty in-memory store so every run starts clean.
 
-Both run on every pull request via `.github/workflows/ci.yml`. So the codebase compiles and
-its behavioural tests pass; what remains unverified is the visual and interaction layer, which
-needs eyes on a simulator or device.
+All of it runs on every pull request via `.github/workflows/ci.yml`. So the codebase
+compiles, its behavioural tests pass, and the core interaction flows are exercised against
+the real UI; what remains unverified by automation is visual quality — layout, spacing, and
+Dynamic Type still need eyes on a simulator or device.
 
 This document was originally a list of predicted compile errors. Every one of them turned out
 to be fine — the optional to-many `@Relationship` with an explicit inverse, the `@ModelActor`

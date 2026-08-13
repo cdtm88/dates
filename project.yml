@@ -70,6 +70,19 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.cdtm88.DatesTests
         GENERATE_INFOPLIST_FILE: YES
 
+  DatesUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: DatesUITests
+    dependencies:
+      - target: Dates
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cdtm88.DatesUITests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Dates
+
 schemes:
   Dates:
     build:
@@ -78,6 +91,7 @@ schemes:
     test:
       targets:
         - DatesTests
+        - DatesUITests
       gatherCoverageData: true
     run:
       config: Debug

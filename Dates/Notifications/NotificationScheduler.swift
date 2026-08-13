@@ -1,6 +1,19 @@
 import Foundation
+import OSLog
 import UserNotifications
 import DatesKit
+
+/// What a scheduling pass actually achieved, as opposed to what the plan asked for.
+///
+/// The two differ when `UNUserNotificationCenter.add` rejects a request; hiding that gap
+/// would make the coverage read-out in Settings optimistic (NOTIF-04).
+struct ScheduleOutcome: Sendable {
+    let plan: NotificationPlan
+    /// How many requests the notification center actually accepted.
+    let scheduledCount: Int
+
+    var failedCount: Int { plan.count - scheduledCount }
+}
 
 /// The subset of `UNUserNotificationCenter` the scheduler uses, so tests can substitute a fake.
 ///
@@ -29,8 +42,15 @@ actor NotificationScheduler {
     /// Carried in `userInfo` so a tap can open the right event (NOTIF-10).
     static let eventIDUserInfoKey = "eventID"
 
+    private static let logger = Logger(subsystem: "com.cdtm88.Dates", category: "notifications")
+
     private let center: NotificationCenterProtocol
     private let planner: NotificationPlanner
+
+    /// The most recent scheduling pass. Actors are re-entrant at suspension points, so two
+    /// overlapping reschedules could interleave their cancel and add phases; each pass waits
+    /// for the previous one, making the most recent caller the last writer.
+    private var inFlightReschedule: Task<ScheduleOutcome, Never>?
 
     init(
         center: NotificationCenterProtocol = UNUserNotificationCenter.current(),
@@ -83,13 +103,34 @@ actor NotificationScheduler {
         notificationTime: TimeOfDay,
         now: Date = Date(),
         calendar: Calendar = .current
-    ) async -> NotificationPlan {
+    ) async -> ScheduleOutcome {
+        let previous = inFlightReschedule
+        let task = Task {
+            _ = await previous?.value
+            return await self.performReschedule(
+                snapshots: snapshots,
+                notificationTime: notificationTime,
+                now: now,
+                calendar: calendar
+            )
+        }
+        inFlightReschedule = task
+        return await task.value
+    }
+
+    private func performReschedule(
+        snapshots: [EventSnapshot],
+        notificationTime: TimeOfDay,
+        now: Date,
+        calendar: Calendar
+    ) async -> ScheduleOutcome {
         await cancelAllEventNotifications()
 
         guard await canSchedule() else {
             // Nothing to schedule against, but the plan is still returned so callers can show
             // coverage information without a permission grant.
-            return planner.plan(events: [], now: now, notificationTime: notificationTime, calendar: calendar)
+            let plan = planner.plan(events: [], now: now, notificationTime: notificationTime, calendar: calendar)
+            return ScheduleOutcome(plan: plan, scheduledCount: 0)
         }
 
         let plan = planner.plan(
@@ -99,12 +140,17 @@ actor NotificationScheduler {
             calendar: calendar
         )
 
+        var scheduledCount = 0
         for planned in plan.notifications {
-            guard let request = makeRequest(for: planned, calendar: calendar) else { continue }
-            try? await center.add(request)
+            do {
+                try await center.add(makeRequest(for: planned, calendar: calendar))
+                scheduledCount += 1
+            } catch {
+                Self.logger.error("Could not schedule \(planned.identifier, privacy: .public): \(error)")
+            }
         }
 
-        return plan
+        return ScheduleOutcome(plan: plan, scheduledCount: scheduledCount)
     }
 
     /// Removes every pending request belonging to one event, matched on the identifier prefix
@@ -134,16 +180,17 @@ actor NotificationScheduler {
 
     // MARK: - Request construction
 
-    private func makeRequest(for planned: PlannedNotification, calendar: Calendar) -> UNNotificationRequest? {
+    private func makeRequest(for planned: PlannedNotification, calendar: Calendar) -> UNNotificationRequest {
         let content = UNMutableNotificationContent()
         content.title = planned.title
         content.body = planned.body
         content.sound = .default
         content.userInfo = [Self.eventIDUserInfoKey: planned.eventID.uuidString]
 
-        var components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: planned.fireDate)
-        components.calendar = calendar
-        components.timeZone = calendar.timeZone
+        // The components are deliberately left floating — no calendar or timezone pinned —
+        // so the trigger means "09:00 on that day, wherever the device is". A pinned zone
+        // would fire at the origin zone's 09:00 after the user travels or DST shifts.
+        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: planned.fireDate)
 
         // Non-repeating: the rolling window re-plans instead, because a repeating yearly
         // trigger per offset cannot fit inside the 64-request cap (D-06).
