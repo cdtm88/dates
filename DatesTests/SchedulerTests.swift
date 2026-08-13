@@ -79,6 +79,24 @@ final class SchedulerTests: XCTestCase {
         XCTAssertTrue(center.identifiers.isEmpty, "nothing can be scheduled without authorisation")
     }
 
+    func testGrantingPermissionAfterDenialRebuildsTheQueueOnTheNextPass() async throws {
+        center.authorizationStatus = .denied
+        center.authorizationGrantResult = false
+
+        let group = try seededGroup()
+        try await store.createEvent(name: "Later", date: try annualDate(inDays: 40), type: .birthday, group: group)
+        XCTAssertTrue(center.identifiers.isEmpty)
+        XCTAssertEqual(store.queueSummary?.scheduledCount, 0)
+
+        // The user flips the switch in the Settings app; the next foreground reschedule
+        // must pick that up without any further prompting.
+        center.authorizationStatus = .authorized
+        await store.rescheduleAll()
+
+        XCTAssertFalse(center.identifiers.isEmpty)
+        XCTAssertEqual(store.queueSummary?.scheduledCount, center.identifiers.count)
+    }
+
     // MARK: - NOTIF-04
 
     func testThePendingQueueNeverExceedsSixtyAtFiveHundredEvents() async throws {
@@ -114,6 +132,48 @@ final class SchedulerTests: XCTestCase {
         await store.rescheduleAll()
 
         XCTAssertEqual(center.identifiers.count, afterFirst)
+    }
+
+    /// The scheduler is a re-entrant actor, so overlapping passes could interleave their
+    /// cancel and add phases without the internal chaining. Rapid event creation is the
+    /// realistic trigger: every save reschedules before the previous pass has settled.
+    func testOverlappingReschedulesLeaveAConsistentQueue() async throws {
+        let group = try seededGroup()
+        for index in 0..<10 {
+            try await store.createEvent(
+                name: String(format: "Person %02d", index),
+                date: try annualDate(inDays: 30 + index * 7),
+                type: .birthday,
+                group: group
+            )
+        }
+        let expected = center.identifiers.sorted()
+
+        let scheduler = NotificationScheduler(center: center)
+        let snapshots = store.snapshots()
+        await withTaskGroup(of: Void.self) { tasks in
+            for _ in 0..<8 {
+                tasks.addTask {
+                    await scheduler.reschedule(snapshots: snapshots, notificationTime: .defaultNotificationTime)
+                }
+            }
+        }
+
+        XCTAssertEqual(center.identifiers.sorted(), expected)
+        XCTAssertEqual(Set(center.identifiers).count, center.identifiers.count, "identifiers must stay unique")
+    }
+
+    func testFailedRequestSubmissionsAreCountedNotSwallowed() async throws {
+        let group = try seededGroup()
+        try await store.createEvent(name: "Unlucky", date: try annualDate(inDays: 40), type: .birthday, group: group)
+        XCTAssertEqual(store.queueSummary?.failedCount, 0)
+
+        center.addError = FakeNotificationCenter.AddRefused()
+        await store.rescheduleAll()
+
+        XCTAssertEqual(store.queueSummary?.scheduledCount, 0)
+        XCTAssertGreaterThan(store.queueSummary?.failedCount ?? 0, 0, "refused requests must be visible in the summary")
+        XCTAssertTrue(center.identifiers.isEmpty)
     }
 
     // MARK: - NOTIF-07
@@ -179,6 +239,23 @@ final class SchedulerTests: XCTestCase {
         )
 
         XCTAssertEqual(center.identifiers(withPrefix: prefix), [NotificationIdentifier.make(eventID: event.uuid, offset: .dayOf)])
+    }
+
+    /// A pinned calendar or timezone on the trigger would fire at the origin zone's clock
+    /// time after the user travels or a DST transition lands between scheduling and firing.
+    /// Floating components mean "this wall-clock time, wherever the device is".
+    func testTriggerComponentsFloatWithTheLocalTimeZone() async throws {
+        let group = try seededGroup()
+        let event = try await store.createEvent(name: "Traveller", date: try annualDate(inDays: 40), type: .birthday, group: group)
+
+        let prefix = NotificationIdentifier.eventPrefix(for: event.uuid)
+        let allComponents = center.fireDateComponents(forPrefix: prefix)
+        XCTAssertFalse(allComponents.isEmpty)
+
+        for components in allComponents {
+            XCTAssertNil(components.timeZone, "a pinned timezone breaks travel and DST behaviour")
+            XCTAssertNil(components.calendar, "a pinned calendar pins its timezone too")
+        }
     }
 
     func testDeletingAnEventRemovesEveryRequestItOwned() async throws {

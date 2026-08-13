@@ -42,6 +42,10 @@ struct SettingsView: View {
                         if let horizon = summary.coverageHorizon {
                             LabeledContent("Covered until", value: horizon.formatted(date: .abbreviated, time: .omitted))
                         }
+                        if summary.failedCount > 0 {
+                            LabeledContent("Could not schedule", value: "\(summary.failedCount)")
+                                .foregroundStyle(.red)
+                        }
                     }
                     if let pendingCount {
                         LabeledContent("Pending on device", value: "\(pendingCount)")

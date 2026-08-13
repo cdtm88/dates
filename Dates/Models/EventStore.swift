@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 import Observation
 import DatesKit
@@ -24,6 +25,9 @@ struct QueueSummary: Equatable {
     var totalEventCount: Int
     var coverageHorizon: Date?
     var wasTruncated: Bool
+    /// Requests the plan wanted but the notification center rejected. Non-zero is abnormal
+    /// and surfaced in Settings rather than silently shrinking coverage.
+    var failedCount: Int
 }
 
 /// Every mutation goes through here.
@@ -34,6 +38,8 @@ struct QueueSummary: Equatable {
 @MainActor
 @Observable
 final class EventStore {
+    private static let logger = Logger(subsystem: "com.cdtm88.Dates", category: "store")
+
     private let context: ModelContext
     private let scheduler: NotificationScheduler
     private let settings: AppSettings
@@ -49,7 +55,14 @@ final class EventStore {
     // MARK: - Reads
 
     func allEvents() -> [DateEvent] {
-        (try? context.fetch(FetchDescriptor<DateEvent>())) ?? []
+        do {
+            return try context.fetch(FetchDescriptor<DateEvent>())
+        } catch {
+            // An empty list is indistinguishable from having no events, so a failed fetch
+            // must at least be loud in diagnostics.
+            Self.logger.fault("Event fetch failed: \(error)")
+            return []
+        }
     }
 
     func snapshots() -> [EventSnapshot] {
@@ -176,19 +189,20 @@ final class EventStore {
     /// global notification time changes (NOTIF-09).
     func rescheduleAll(now: Date = Date(), calendar: Calendar = .current) async {
         let snapshots = snapshots()
-        let plan = await scheduler.reschedule(
+        let outcome = await scheduler.reschedule(
             snapshots: snapshots,
             notificationTime: settings.notificationTime,
             now: now,
             calendar: calendar
         )
         queueSummary = QueueSummary(
-            scheduledCount: plan.count,
+            scheduledCount: outcome.scheduledCount,
             ceiling: NotificationPlanner.defaultQueueCeiling,
-            coveredEventCount: plan.coveredEventIDs.count,
+            coveredEventCount: outcome.plan.coveredEventIDs.count,
             totalEventCount: snapshots.count,
-            coverageHorizon: plan.coverageHorizon,
-            wasTruncated: plan.wasTruncated
+            coverageHorizon: outcome.plan.coverageHorizon,
+            wasTruncated: outcome.plan.wasTruncated,
+            failedCount: outcome.failedCount
         )
     }
 

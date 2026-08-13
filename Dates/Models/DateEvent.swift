@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 import DatesKit
 
@@ -55,9 +56,14 @@ final class DateEvent {
     }
 
     /// Falls back to 1 January only if the stored components are somehow unrepresentable,
-    /// which validation on the way in should prevent.
+    /// which validation on the way in should prevent. The fault log is the tell that the
+    /// store — or, come Phase 06, a CloudKit sync — handed back corrupt components.
     var annualDate: AnnualDate {
-        AnnualDate(month: month, day: day, year: year) ?? AnnualDate(month: 1, day: 1)!
+        if let date = AnnualDate(month: month, day: day, year: year) {
+            return date
+        }
+        Self.logger.fault("Stored components \(self.month)/\(self.day) for event \(self.uuid) are invalid; showing 1 January")
+        return AnnualDate(month: 1, day: 1)!
     }
 
     func setAnnualDate(_ date: AnnualDate) {
@@ -100,6 +106,8 @@ final class DateEvent {
     /// Stand-in id for an event whose group relationship has not resolved yet, so that
     /// grouping logic never has to deal with a nil id.
     static let orphanGroupID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
+
+    private static let logger = Logger(subsystem: "com.cdtm88.Dates", category: "model")
 
     func touch(_ date: Date = Date()) {
         updatedAt = date

@@ -5,8 +5,12 @@ import UserNotifications
 /// Stand-in for `UNUserNotificationCenter`, so scheduling behaviour can be asserted without
 /// a device and without the system prompt.
 final class FakeNotificationCenter: NotificationCenterProtocol, @unchecked Sendable {
+    struct AddRefused: Error {}
+
     var authorizationStatus: UNAuthorizationStatus = .authorized
     var authorizationGrantResult = true
+    /// When set, every `add` throws, standing in for the system refusing a request.
+    var addError: Error?
     private(set) var authorizationRequestCount = 0
     private(set) var requests: [UNNotificationRequest] = []
 
@@ -22,7 +26,12 @@ final class FakeNotificationCenter: NotificationCenterProtocol, @unchecked Senda
     }
 
     func add(_ request: UNNotificationRequest) async throws {
-        lock.withLock { requests.append(request) }
+        if let addError { throw addError }
+        // The real center replaces a pending request that reuses an identifier.
+        lock.withLock {
+            requests.removeAll { $0.identifier == request.identifier }
+            requests.append(request)
+        }
     }
 
     func pendingNotificationRequests() async -> [UNNotificationRequest] {

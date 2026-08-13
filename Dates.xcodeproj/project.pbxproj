@@ -19,6 +19,7 @@
 		62CD1998E88A2E82E9AAC2D4 /* EventGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B95130E8E7188F06B6A79 /* EventGroup.swift */; };
 		63B5D3F3590FBF80AD87D220 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6CA71650233D487FEFECA9A /* EventFormatting.swift */; };
 		6F8FB6AFDF3B3774FC2B4ED3 /* SchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E14883C6117BB8E17FE664 /* SchedulerTests.swift */; };
+		74D522CD06559DA31A36EEC5 /* DatesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C60F755F98B300781A1E6D /* DatesUITests.swift */; };
 		78DB19A840EE62046B291898 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83EF3F1E7DCADF4CEF742E /* EmptyStateView.swift */; };
 		82912F976B60DC83D33EA4D4 /* DatesKit in Frameworks */ = {isa = PBXBuildFile; productRef = CB5EAF7A999CE0E236593847 /* DatesKit */; };
 		83D382A64E563415697C012B /* NotificationRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500FDC14800B53C54798EFAB /* NotificationRouter.swift */; };
@@ -43,9 +44,17 @@
 			remoteGlobalIDString = 6953A73F8ACA19FB8FF0FD02;
 			remoteInfo = Dates;
 		};
+		C2F7F40A2E440E6B82E33A07 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFA3F3AF34257C4FE2EB5B31 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6953A73F8ACA19FB8FF0FD02;
+			remoteInfo = Dates;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		08C60F755F98B300781A1E6D /* DatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesUITests.swift; sourceTree = "<group>"; };
 		0F4DFFAE94109E39B2D2DA70 /* FakeNotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeNotificationCenter.swift; sourceTree = "<group>"; };
 		1500FA33C3B6720B8E26D377 /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
 		266AB6DA98285D348FE0AFA2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -53,6 +62,7 @@
 		383B2215B735B97CFA835DE3 /* EventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStore.swift; sourceTree = "<group>"; };
 		4EB04B02B4F0096D091E3120 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		500FDC14800B53C54798EFAB /* NotificationRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationRouter.swift; sourceTree = "<group>"; };
+		5ED87C418164B52BDBC856D7 /* DatesUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DatesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F1A67EA2D62F7747025E406 /* Dates.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Dates.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FA524433B51280F2C5AFEB3 /* EventRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRowView.swift; sourceTree = "<group>"; };
 		706D92DBB542F573FFACE2C2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -141,11 +151,20 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		662097F3AC8606BF325AC022 /* DatesUITests */ = {
+			isa = PBXGroup;
+			children = (
+				08C60F755F98B300781A1E6D /* DatesUITests.swift */,
+			);
+			path = DatesUITests;
+			sourceTree = "<group>";
+		};
 		922D264649B499FD3D44967E /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				5F1A67EA2D62F7747025E406 /* Dates.app */,
 				E347E64DA97FE82B25AED678 /* DatesTests.xctest */,
+				5ED87C418164B52BDBC856D7 /* DatesUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -186,6 +205,7 @@
 			children = (
 				F1AFD38869B966887816F398 /* Dates */,
 				BFF243895F9A1BC859FBACA2 /* DatesTests */,
+				662097F3AC8606BF325AC022 /* DatesUITests */,
 				A8448B71834FC28A4AECF77D /* Packages */,
 				922D264649B499FD3D44967E /* Products */,
 			);
@@ -205,6 +225,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1F2F1AD88DD1482C28FB56A8 /* DatesUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FFA879FF130EAE2C0181EDC2 /* Build configuration list for PBXNativeTarget "DatesUITests" */;
+			buildPhases = (
+				9532D5C171122817DA60A26B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				416F48695423D0F96E81DC93 /* PBXTargetDependency */,
+			);
+			name = DatesUITests;
+			packageProductDependencies = (
+			);
+			productName = DatesUITests;
+			productReference = 5ED87C418164B52BDBC856D7 /* DatesUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		5E7FB5F6020CA994E39400E0 /* DatesTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D8557B94E00830BDC2EDF513 /* Build configuration list for PBXNativeTarget "DatesTests" */;
@@ -254,6 +292,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					1F2F1AD88DD1482C28FB56A8 = {
+						TestTargetID = 6953A73F8ACA19FB8FF0FD02;
+					};
 					6953A73F8ACA19FB8FF0FD02 = {
 						ProvisioningStyle = Automatic;
 					};
@@ -278,6 +319,7 @@
 			targets = (
 				6953A73F8ACA19FB8FF0FD02 /* Dates */,
 				5E7FB5F6020CA994E39400E0 /* DatesTests */,
+				1F2F1AD88DD1482C28FB56A8 /* DatesUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -301,6 +343,14 @@
 				4E31E730ABEC80ED031F106A /* FakeNotificationCenter.swift in Sources */,
 				DE6B87472FC274EE5D978285 /* PersistenceTests.swift in Sources */,
 				6F8FB6AFDF3B3774FC2B4ED3 /* SchedulerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9532D5C171122817DA60A26B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				74D522CD06559DA31A36EEC5 /* DatesUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,9 +389,31 @@
 			target = 6953A73F8ACA19FB8FF0FD02 /* Dates */;
 			targetProxy = 8CDD78A37C2FD50125C5AF38 /* PBXContainerItemProxy */;
 		};
+		416F48695423D0F96E81DC93 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6953A73F8ACA19FB8FF0FD02 /* Dates */;
+			targetProxy = C2F7F40A2E440E6B82E33A07 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		3D2DFFB6EAE9FFC5ED2F103A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cdtm88.DatesUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Dates;
+			};
+			name = Release;
+		};
 		45ADB95446B4FD3948BAEAE6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -361,6 +433,23 @@
 				PRODUCT_NAME = Dates;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		5EACF14F396A0A1BC6838BCC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cdtm88.DatesUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Dates;
 			};
 			name = Debug;
 		};
@@ -569,6 +658,15 @@
 			buildConfigurations = (
 				AE562CA9C54E603FC7EFE181 /* Debug */,
 				F9AAF5E7594AB1E8270C90B6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		FFA879FF130EAE2C0181EDC2 /* Build configuration list for PBXNativeTarget "DatesUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5EACF14F396A0A1BC6838BCC /* Debug */,
+				3D2DFFB6EAE9FFC5ED2F103A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
