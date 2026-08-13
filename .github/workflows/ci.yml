@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  domain:
+    # The domain package depends on Foundation only, so it builds and tests on Linux
+    # without Xcode. Fast, and it covers the requirements most likely to regress.
+    name: DatesKit (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Build
+        working-directory: DatesKit
+        run: swift build
+
+      - name: Test
+        working-directory: DatesKit
+        run: swift test
+
+  app:
+    # Compiles the SwiftUI and SwiftData layer and runs the tests that need
+    # UserNotifications, neither of which is possible on Linux.
+    name: App (macOS)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode version
+        run: xcodebuild -version
+
+      - name: Choose a simulator
+        id: simulator
+        # Resolved at run time rather than pinned to a device name, so a runner image
+        # bumping its Xcode does not silently break the build.
+        run: |
+          UDID=$(xcrun simctl list devices available --json | python3 -c '
+          import json, sys
+
+          devices = json.load(sys.stdin)["devices"]
+          for runtime in sorted(devices, reverse=True):
+              if "SimRuntime.iOS" not in runtime:
+                  continue
+              for device in devices[runtime]:
+                  if device.get("isAvailable") and "iPhone" in device.get("name", ""):
+                      print(device["udid"])
+                      sys.exit(0)
+          ')
+          if [ -z "$UDID" ]; then
+            echo "::error::No available iPhone simulator on this runner"
+            xcrun simctl list devices available
+            exit 1
+          fi
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          xcrun simctl list devices available | grep "$UDID"
+
+      - name: Build
+        run: |
+          xcodebuild build \
+            -project Dates.xcodeproj \
+            -scheme Dates \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Test
+        run: |
+          xcodebuild test \
+            -project Dates.xcodeproj \
+            -scheme Dates \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            CODE_SIGNING_ALLOWED=NO
+
+  project-in-sync:
+    # XcodeGen resolves its source globs at generation time, so a Swift file added
+    # without re-running it is invisible to the build for everyone except the person
+    # who added it through Xcode's UI.
+    #
+    # This compares file references rather than regenerating and diffing the whole
+    # pbxproj, which would fail spuriously whenever the XcodeGen version in CI differs
+    # from the one that produced the committed project.
+    name: Xcode project references every source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check
+        run: python3 Tools/check_project_sync.py

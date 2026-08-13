@@ -1,0 +1,26 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# The project file is generated from project.yml but committed so the repo opens
+# directly. Per-user workspace state inside it is not.
+Dates.xcodeproj/project.xcworkspace/xcuserdata/
+Dates.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+Dates.xcodeproj/xcuserdata/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# macOS
+.DS_Store
