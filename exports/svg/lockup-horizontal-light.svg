@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" width="420" height="120">
+
+<g transform="translate(24 24) scale(0.72)">
+  <rect x="11" y="17" width="78" height="72" rx="15" fill="#bf4400"></rect>
+  <rect x="29" y="7" width="10" height="20" rx="5" fill="#bf4400"></rect><rect x="61" y="7" width="10" height="20" rx="5" fill="#bf4400"></rect>
+  <rect x="11" y="17" width="78" height="19" rx="9.5" fill="#bf4400"></rect>
+  <path d="M50 42 C59.5 52 59.5 58 50 63 C40.5 58 40.5 52 50 42 Z" fill="#ffffff"></path>
+  <rect x="45.5" y="62" width="9" height="18" rx="4.5" fill="#ffffff"></rect></g>
+<text x="130" y="78" font-family="Instrument Sans, -apple-system, Helvetica, sans-serif" font-size="58" font-weight="700" letter-spacing="-2.2" fill="#15191e">Dates</text></svg>
