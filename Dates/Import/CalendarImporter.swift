@@ -8,6 +8,17 @@ import DatesKit
 /// system Birthdays calendar, and events with a yearly recurrence rule. Everything else —
 /// meetings, one-off appointments — is deliberately not offered, because importing it would
 /// bury the dates the app exists for.
+/// The candidates one calendar produced, so the user can choose whole calendars before
+/// reviewing individual dates — a subscribed holiday calendar is one switch, not fifteen.
+struct CalendarCandidates: Identifiable, Equatable, Sendable {
+    /// EventKit's `calendarIdentifier`.
+    let id: String
+    let title: String
+    /// Subscribed calendars (public holidays and the like) start deselected.
+    let isSubscribed: Bool
+    let candidates: [ImportCandidate]
+}
+
 enum CalendarImporter {
 
     enum ImportError: LocalizedError {
@@ -22,9 +33,10 @@ enum CalendarImporter {
     }
 
     /// Requests read access if needed, then returns candidates from the next year of
-    /// calendar events, soonest first. The year is left unknown: an occurrence's year says
-    /// when it next happens, not when the person was born, and a wrong age is worse than none.
-    static func fetchCandidates(now: Date = Date(), calendar: Calendar = .current) async throws -> [ImportCandidate] {
+    /// calendar events, grouped by the calendar they came from. The year is left unknown:
+    /// an occurrence's year says when it next happens, not when the person was born, and a
+    /// wrong age is worse than none.
+    static func fetchCandidatesByCalendar(now: Date = Date(), calendar: Calendar = .current) async throws -> [CalendarCandidates] {
         let eventStore = EKEventStore()
         guard try await eventStore.requestFullAccessToEvents() else {
             throw ImportError.accessDenied
@@ -34,14 +46,41 @@ enum CalendarImporter {
         let predicate = eventStore.predicateForEvents(withStart: now, end: horizon, calendars: nil)
         let events = eventStore.events(matching: predicate)
 
-        var seen = Set<String>()
-        return events.compactMap { event -> ImportCandidate? in
-            guard let candidate = candidate(for: event, calendar: calendar) else { return nil }
-            // The same recurring event appears once per occurrence in a date-range query;
-            // and two calendars can carry the same person's birthday.
-            guard seen.insert(candidate.duplicateKey).inserted else { return nil }
-            return candidate
+        var order: [String] = []
+        var titles: [String: String] = [:]
+        var subscribed: [String: Bool] = [:]
+        var grouped: [String: [ImportCandidate]] = [:]
+        // Deduplication is per-calendar here: the same recurring event appears once per
+        // occurrence in a date-range query. Cross-calendar duplicates survive until the
+        // user has picked calendars, then merge screens them out.
+        var seen: [String: Set<String>] = [:]
+
+        for event in events {
+            guard let candidate = candidate(for: event, calendar: calendar) else { continue }
+            let source = event.calendar
+            let id = source?.calendarIdentifier ?? "unknown"
+            if titles[id] == nil {
+                order.append(id)
+                titles[id] = source?.title ?? "Calendar"
+                subscribed[id] = source?.type == .subscription
+            }
+            guard seen[id, default: []].insert(candidate.duplicateKey).inserted else { continue }
+            grouped[id, default: []].append(candidate)
         }
+
+        return order
+            .map { id in
+                CalendarCandidates(
+                    id: id,
+                    title: titles[id] ?? "Calendar",
+                    isSubscribed: subscribed[id] ?? false,
+                    candidates: grouped[id] ?? []
+                )
+            }
+            .sorted { lhs, rhs in
+                if lhs.isSubscribed != rhs.isSubscribed { return !lhs.isSubscribed }
+                return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
+            }
     }
 
     private static func candidate(for event: EKEvent, calendar: Calendar) -> ImportCandidate? {
