@@ -12,8 +12,11 @@
   <img src="https://img.shields.io/badge/status-pre--release-orange" alt="Status: pre-release">
 </p>
 
-<!-- TODO: add two or three simulator screenshots here. This is the single biggest
-     gap in the README; a date-tracking app is judged on whether the list looks good. -->
+<p align="center">
+  <img src="assets/screenshots/list-light.png" alt="The home list in light mode, sectioned by month" width="260">
+  <img src="assets/screenshots/list-dark.png" alt="The home list in dark mode" width="260">
+  <img src="assets/screenshots/empty-light.png" alt="The empty state, offering manual entry and both imports" width="260">
+</p>
 
 ## Overview
 
@@ -105,6 +108,6 @@ xcodebuild test -project Dates.xcodeproj -scheme Dates \
 A personal project, so issues and pull requests are not being actively taken. You are
 welcome to fork it.
 
-<!-- TODO: no LICENSE file exists, which makes this all-rights-reserved by default and
-     means nobody can legally reuse it. Add one and replace this comment with a
-     License section. MIT is the usual choice if you do not mind. -->
+## License
+
+[MIT](LICENSE). The Dates name, icon and lockup are not covered by the code license.
