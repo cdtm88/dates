@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- No aps-environment or iCloud keys: personal development teams cannot
+	     provision those capabilities. CloudKit sync is Release-only; the app
+	     falls back to the local store when the entitlement is absent. -->
+</dict>
+</plist>
