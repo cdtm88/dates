@@ -93,8 +93,8 @@ final class DatesUITests: XCTestCase {
         addEvent(named: "Queue Check")
         XCTAssertTrue(app.staticTexts["Queue Check"].waitForExistence(timeout: 10))
 
-        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Filter and settings'")).firstMatch.tap()
-        app.buttons["Settings"].tap()
+        tapWhenReady(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Filter and settings'")).firstMatch)
+        tapWhenReady(app.buttons["Settings"])
 
         XCTAssertTrue(app.staticTexts["Reminder time"].waitForExistence(timeout: 10))
 
@@ -134,6 +134,19 @@ final class DatesUITests: XCTestCase {
         if allow.waitForExistence(timeout: 3) {
             allow.tap()
         }
+    }
+
+    /// Taps only once the element exists and is hittable. A tap fired while a menu or sheet
+    /// is still animating in gets silently dropped on slow CI runners, which is a flaky
+    /// failure two lines later rather than an error here.
+    private func tapWhenReady(_ element: XCUIElement, timeout: TimeInterval = 10, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertTrue(element.waitForExistence(timeout: timeout), "element never appeared", file: file, line: line)
+        let deadline = Date().addingTimeInterval(timeout)
+        while !element.isHittable && Date() < deadline {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        XCTAssertTrue(element.isHittable, "element never became hittable", file: file, line: line)
+        element.tap()
     }
 
     /// A menu-style `Picker` in a `Form` surfaces as a button whose label starts with the
