@@ -95,7 +95,7 @@ final class DatesUITests: XCTestCase {
 
         openSettingsFromMenu()
 
-        XCTAssertTrue(app.staticTexts["Reminder time"].waitForExistence(timeout: 10))
+        XCTAssertTrue(settingsHeader.waitForExistence(timeout: 10))
 
         // The appearance control defaults to Light on a fresh install (UI-01, Phase 07).
         let lightSegment = app.buttons["Light"]
@@ -118,21 +118,23 @@ final class DatesUITests: XCTestCase {
 
     // MARK: - Helpers
 
-    /// Opens Settings via the filter menu, preferring a query scoped to the open menu's
-    /// collection view — on iOS 18 the unscoped `buttons["Settings"]` can match a hidden
-    /// mirror of the menu content whose frame is nowhere near the visible row, so the tap
-    /// closes the menu instead of firing the action. One retry, and a hierarchy dump to
-    /// the console if the sheet still refuses, so a CI failure is diagnosable from the log.
+    /// The "Reminder time" section header. Matched case-insensitively: iOS 18 exposes a
+    /// Form section header's accessibility label as the uppercased text it draws
+    /// ("REMINDER TIME"), while newer versions keep the authored case — an exact match
+    /// passes locally and fails on CI with nothing in the log to say why.
+    private var settingsHeader: XCUIElement {
+        app.staticTexts.matching(NSPredicate(format: "label ==[c] 'Reminder time'")).firstMatch
+    }
+
+    /// Opens Settings via the filter menu, retrying once and dumping the accessibility
+    /// hierarchy to the console on failure so a CI-only failure is diagnosable from the log.
     private func openSettingsFromMenu() {
         let menuButton = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Filter and settings'")).firstMatch
         for attempt in 0..<2 {
             tapWhenReady(menuButton)
+            tapWhenReady(app.buttons["Settings"])
 
-            let scoped = app.collectionViews.buttons["Settings"]
-            let item = scoped.waitForExistence(timeout: 3) ? scoped : app.buttons["Settings"]
-            tapWhenReady(item)
-
-            if app.staticTexts["Reminder time"].waitForExistence(timeout: 5) { return }
+            if settingsHeader.waitForExistence(timeout: 5) { return }
             print("openSettingsFromMenu attempt \(attempt) failed; hierarchy:\n\(app.debugDescription)")
         }
         XCTFail("The Settings sheet never presented from the menu")

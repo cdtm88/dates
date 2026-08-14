@@ -13,9 +13,7 @@ struct EventListView: View {
     @Query(sort: \EventGroup.createdAt) private var groups: [EventGroup]
 
     /// The list's three modal destinations, driven by one item so only one sheet modifier
-    /// hangs off the content node. Stacking a boolean `.sheet` per destination broke on
-    /// the iOS 18 simulator once the import presenters joined the same chain: taps landed,
-    /// state flipped, and the sheet never came — with no log line to say why.
+    /// hangs off the content node and only one can ever be asked for at a time.
     private enum ActiveSheet: String, Identifiable {
         case addEvent, groups, settings
         var id: String { rawValue }
@@ -119,13 +117,13 @@ struct EventListView: View {
                 Divider()
 
                 Button {
-                    presentFromMenu(.groups)
+                    activeSheet = .groups
                 } label: {
                     Label("Manage groups", systemImage: "folder")
                 }
 
                 Button {
-                    presentFromMenu(.settings)
+                    activeSheet = .settings
                 } label: {
                     Label("Settings", systemImage: "gear")
                 }
@@ -141,7 +139,7 @@ struct EventListView: View {
         ToolbarItem(placement: .primaryAction) {
             Menu {
                 Button {
-                    presentFromMenu(.addEvent)
+                    activeSheet = .addEvent
                 } label: {
                     Label("Add a date", systemImage: "plus")
                 }
@@ -165,17 +163,6 @@ struct EventListView: View {
             } primaryAction: {
                 activeSheet = .addEvent
             }
-        }
-    }
-
-    /// Presents a sheet from inside a menu. Setting the state synchronously in the action
-    /// races the menu's dismissal transaction, and iOS 18 resolves that race by dropping
-    /// the presentation — deterministically in CI, never on newer simulators. The pause is
-    /// hidden inside the menu's own dismissal animation.
-    private func presentFromMenu(_ sheet: ActiveSheet) {
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(350))
-            activeSheet = sheet
         }
     }
 }
