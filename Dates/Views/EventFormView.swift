@@ -26,10 +26,9 @@ struct EventFormView: View {
     @State private var type: EventType = .birthday
     @State private var month = 1
     @State private var day = 1
-    @State private var isYearKnown = false
-    @State private var year = Calendar.current.component(.year, from: Date())
+    /// Nil is the default: the year is optional, and no age is shown without one (DATA-03).
+    @State private var year: Int?
     @State private var selectedGroupID: UUID?
-    @State private var overridesOffsets = false
     @State private var offsets: OffsetSelection = .dayOf
 
     @State private var errorMessage: String?
@@ -51,7 +50,7 @@ struct EventFormView: View {
                     }
                 }
 
-                Section("Date") {
+                Section {
                     Picker("Month", selection: $month) {
                         ForEach(1...12, id: \.self) { month in
                             Text(EventFormatting.monthName(month)).tag(month)
@@ -64,18 +63,19 @@ struct EventFormView: View {
                         }
                     }
 
-                    Toggle("I know the year", isOn: $isYearKnown)
-
-                    if isYearKnown {
-                        Picker("Year", selection: $year) {
-                            ForEach(yearRange, id: \.self) { year in
-                                Text(String(year)).tag(year)
-                            }
+                    // The tag types must stay `Int?` to match the selection, or the picker
+                    // silently renders with nothing selected (see docs/xcode-handover.md).
+                    Picker("Year", selection: $year) {
+                        Text("Not set").tag(Int?.none)
+                        ForEach(yearRange, id: \.self) { year in
+                            Text(String(year)).tag(Optional(year))
                         }
-                    } else {
-                        Text("Without a year, no age is shown.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Text("Date")
+                } footer: {
+                    if year == nil {
+                        Text("The year is optional. Without one, no age is shown.")
                     }
                 }
 
@@ -87,21 +87,12 @@ struct EventFormView: View {
                     }
                 }
 
-                Section("Alerts") {
-                    Toggle("Set alerts for this date", isOn: $overridesOffsets)
-
-                    if overridesOffsets {
-                        OffsetSelectionEditor(selection: $offsets)
-                        if offsets.isEmpty {
-                            Text("This date will never notify you.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    } else {
-                        Text(inheritedSummary)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                Section {
+                    OffsetSelectionEditor(selection: $offsets)
+                } header: {
+                    Text("Alerts")
+                } footer: {
+                    Text(alertsFooter)
                 }
 
                 if let errorMessage {
@@ -124,7 +115,15 @@ struct EventFormView: View {
             .onAppear(perform: loadInitialValues)
             .onChange(of: month) { clampDay() }
             .onChange(of: year) { clampDay() }
-            .onChange(of: isYearKnown) { clampDay() }
+            // Untouched alerts follow the group: if the toggles still match the group the
+            // user is leaving, they re-seed from the one they are joining. A selection the
+            // user has diverged is theirs and is left alone.
+            .onChange(of: selectedGroupID) { oldID, newID in
+                let oldDefault = groups.first { $0.uuid == oldID }?.defaultOffsets
+                if offsets == oldDefault, let newDefault = groups.first(where: { $0.uuid == newID })?.defaultOffsets {
+                    offsets = newDefault
+                }
+            }
         }
     }
 
@@ -133,17 +132,25 @@ struct EventFormView: View {
     /// The day picker adapts to the month, and to the year when one is known, so 29 February
     /// is offerable for a year-unknown date but not for a stored non-leap year (DATA-04).
     private var maxDay: Int {
-        let referenceYear = isYearKnown ? year : 2000
-        return AnnualDate.daysInMonth(month, year: referenceYear, calendar: .current) ?? 31
+        // 2000 is a leap year, so 29 February stays offerable while the year is unset.
+        AnnualDate.daysInMonth(month, year: year ?? 2000, calendar: .current) ?? 31
     }
 
     private var selectedGroup: EventGroup? {
         groups.first { $0.uuid == selectedGroupID }
     }
 
-    private var inheritedSummary: String {
-        guard let group = selectedGroup else { return "Inherits the group default." }
-        return "Inherits \(EventFormatting.offsetsSummary(group.defaultOffsets).lowercased()) from \(group.name)."
+    /// Says whether this selection is the group's default or the event's own, and warns
+    /// when it means silence — the state the old master toggle used to carry.
+    private var alertsFooter: String {
+        guard let group = selectedGroup else { return "" }
+        if offsets == group.defaultOffsets {
+            return "\(group.name)'s default. If the group's alerts change, this date follows."
+        }
+        if offsets.isEmpty {
+            return "This date will never notify you."
+        }
+        return "Set just for this date. \(group.name)'s default is \(EventFormatting.offsetsSummary(group.defaultOffsets).lowercased())."
     }
 
     private func clampDay() {
@@ -155,30 +162,20 @@ struct EventFormView: View {
     private func loadInitialValues() {
         guard case let .edit(event) = mode else {
             selectedGroupID = selectedGroupID ?? groups.first(where: { !$0.isUngrouped })?.uuid ?? groups.first?.uuid
+            offsets = selectedGroup?.defaultOffsets ?? .dayOf
             return
         }
         name = event.name
         type = event.type
         month = event.month
         day = event.day
-        if let storedYear = event.year {
-            isYearKnown = true
-            year = storedYear
-        } else {
-            isYearKnown = false
-        }
+        year = event.year
         selectedGroupID = event.group?.uuid ?? groups.first?.uuid
-        if let override = event.offsetOverride {
-            overridesOffsets = true
-            offsets = override
-        } else {
-            overridesOffsets = false
-            offsets = event.group?.defaultOffsets ?? .dayOf
-        }
+        offsets = event.effectiveOffsets
     }
 
     private func save() async {
-        guard let date = AnnualDate(month: month, day: day, year: isYearKnown ? year : nil) else {
+        guard let date = AnnualDate(month: month, day: day, year: year) else {
             errorMessage = "That date does not exist."
             return
         }
@@ -186,7 +183,10 @@ struct EventFormView: View {
         isSaving = true
         defer { isSaving = false }
 
-        let override: OffsetSelection? = overridesOffsets ? offsets : nil
+        // A selection matching the group default is stored as "inherit", so a later change
+        // to the group's alerts still flows through (GROUP-05). Only a divergent selection
+        // becomes a per-event override — including empty, which means "never notify".
+        let override: OffsetSelection? = offsets == selectedGroup?.defaultOffsets ? nil : offsets
 
         do {
             switch mode {

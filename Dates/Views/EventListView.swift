@@ -18,6 +18,7 @@ struct EventListView: View {
     @State private var isAddingEvent = false
     @State private var isShowingGroups = false
     @State private var isShowingSettings = false
+    @State private var importFlow = ImportFlow()
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -37,6 +38,7 @@ struct EventListView: View {
                 .sheet(isPresented: $isShowingSettings) {
                     SettingsView(store: store, settings: settings)
                 }
+                .importFlow(importFlow, store: store)
         }
         // A notification tap opens that event's detail view and does nothing else (NOTIF-10).
         .onChange(of: router.pendingEventID) {
@@ -51,7 +53,12 @@ struct EventListView: View {
     @ViewBuilder
     private var content: some View {
         if events.isEmpty {
-            EmptyStateView(onAddManually: { isAddingEvent = true })
+            EmptyStateView(
+                onAddManually: { isAddingEvent = true },
+                importAvailable: true,
+                onImportCalendar: { importFlow.fetchCalendarCandidates(now: now) },
+                onImportCSV: { importFlow.isPickingCSV = true }
+            )
         } else if rows.isEmpty {
             ContentUnavailableView.search(text: searchText)
         } else {
@@ -122,10 +129,31 @@ struct EventListView: View {
         }
 
         ToolbarItem(placement: .primaryAction) {
-            Button {
-                isAddingEvent = true
+            Menu {
+                Button {
+                    isAddingEvent = true
+                } label: {
+                    Label("Add a date", systemImage: "plus")
+                }
+
+                Divider()
+
+                Button {
+                    importFlow.fetchCalendarCandidates(now: now)
+                } label: {
+                    Label("Import from Calendar", systemImage: "calendar")
+                }
+                .disabled(importFlow.isFetchingCalendar)
+
+                Button {
+                    importFlow.isPickingCSV = true
+                } label: {
+                    Label("Import a CSV", systemImage: "doc.text")
+                }
             } label: {
                 Label("Add a date", systemImage: "plus")
+            } primaryAction: {
+                isAddingEvent = true
             }
         }
     }

@@ -28,9 +28,9 @@ final class DatesUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["No dates yet"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["Add a date"].firstMatch.isEnabled)
 
-        // Phase 05 placeholders must be visible but not tappable.
-        XCTAssertFalse(app.buttons["Import from Calendar"].isEnabled)
-        XCTAssertFalse(app.buttons["Import a CSV"].isEnabled)
+        // All three entry routes are live now that Phase 05 has landed (LIST-06).
+        XCTAssertTrue(app.buttons["Import from Calendar"].isEnabled)
+        XCTAssertTrue(app.buttons["Import a CSV"].isEnabled)
     }
 
     // MARK: - Creating a date
@@ -76,14 +76,11 @@ final class DatesUITests: XCTestCase {
         app.buttons["29"].tap()
         XCTAssertTrue(dayPicker.label.contains("29"))
 
-        // Switching to a known non-leap year clamps the day back to 28. The switch element
-        // spans the whole row, so a centre tap misses the control at the trailing edge.
-        let yearToggle = app.switches["I know the year"].firstMatch
-        XCTAssertTrue(yearToggle.waitForExistence(timeout: 5))
-        yearToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
-
+        // Picking a known non-leap year clamps the day back to 28. The year picker is
+        // always visible and defaults to "Not set".
         let yearPicker = pickerButton(titled: "Year")
-        XCTAssertTrue(yearPicker.waitForExistence(timeout: 5), "turning the year on must reveal the year picker")
+        XCTAssertTrue(yearPicker.waitForExistence(timeout: 5))
+        XCTAssertTrue(yearPicker.label.contains("Not set"), "the year must default to unset")
         yearPicker.tap()
         XCTAssertTrue(scrollToMenuOption("2023"))
         app.buttons["2023"].tap()
@@ -100,9 +97,16 @@ final class DatesUITests: XCTestCase {
         app.buttons["Settings"].tap()
 
         XCTAssertTrue(app.staticTexts["Reminder time"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["Scheduled"].exists)
-        XCTAssertTrue(app.staticTexts["Dates covered"].exists)
-        XCTAssertFalse(app.staticTexts["Could not schedule"].exists, "no request may fail on a healthy run")
+
+        // The queue read-out is a footer sentence now, not a diagnostics table.
+        let coverage = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS 'reminders scheduled through'")
+        ).firstMatch
+        XCTAssertTrue(coverage.waitForExistence(timeout: 10), "the footer must say how far reminders reach")
+        XCTAssertFalse(
+            app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'could not be scheduled'")).firstMatch.exists,
+            "no request may fail on a healthy run"
+        )
 
         app.buttons["Done"].tap()
         XCTAssertTrue(app.staticTexts["Queue Check"].waitForExistence(timeout: 10))
