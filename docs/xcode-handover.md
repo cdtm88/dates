@@ -1,6 +1,9 @@
 # Handover: picking this up in Xcode
 
-You are inheriting Milestone 1 of the Dates PRD — phases 01 to 04.
+You are inheriting phases 01 to 05 of the Dates PRD. Phases 01 to 04 (Milestone 1) were
+built first; Phase 05 — calendar and CSV import/export — landed after, developed in Xcode
+with all suites run on a simulator. Some counts below predate Phase 05; the README has the
+current ones.
 
 ## Status
 
@@ -118,8 +121,8 @@ Check Dynamic Type at XXXL while you are here, even though that is Phase 07 — 
 find layout breaks now.
 
 **Phase 04.** First save should trigger the permission prompt, not launch. Grant it, open
-Settings, check the queue read-out ("Scheduled *n* of 60"). Change the notification time and
-confirm the read-out rebuilds. Deny permission on a fresh install and confirm the app is still
+Settings, check the Reminder time footer says how many dates are scheduled and through when.
+Change the notification time and confirm the footer rebuilds. Deny permission on a fresh install and confirm the app is still
 fully usable.
 
 **On device only:** actual notification delivery, and background refresh (NOTIF-06), which iOS
@@ -127,11 +130,9 @@ schedules at its own discretion and may never run when you want it to.
 
 ## What is deliberately absent
 
-- **Phases 05 to 08.** No import, no export, no CloudKit, no appearance setting, no release work.
+- **Phases 06 to 08.** No CloudKit, no appearance setting, no release work.
 - **UI-01 to UI-03 are Phase 07,** so there is no Light/Dark setting and the app follows the
   system. The PRD wants Light as the first-launch default.
-- **LIST-06 is partial.** The empty state shows all three entry routes, but Calendar and CSV
-  import are disabled buttons — present so that screen does not need redesigning in Phase 05.
 - **PERF-01 and PERF-02 are unverified** — device measurements on an iPhone 12 or newer. The
   timings in the test suites guard the algorithm, not the device figure.
 
@@ -141,10 +142,12 @@ schedules at its own discretion and may never run when you want it to.
   relationships are optional, no unique constraints. Turning it on should be a `cloudKitDatabase:`
   argument in `DatesModelContainer.makeContainer` plus the capability, with no migration. Keep it
   that way — adding a non-defaulted attribute now costs a migration later.
-- **Phase 05 (import).** `AnnualDate.init?` already rejects impossible dates including 29
-  February against a non-leap year, which is exactly the per-row rejection reason CSV import
-  needs for IMP-06. Import should build snapshots and go through `EventStore`, not write to the
-  context directly.
+- **Phase 05 (import) is built.** CSV and Calendar import both stage through
+  `ImportReviewView` and land via `EventStore.importEvents` — one save, one reschedule,
+  duplicates screened twice (review and store). The CSV schema lives in
+  `DatesKit/EventImport.swift`, the EventKit mapping in `Dates/Import/CalendarImporter.swift`,
+  export in Settings. Manual acceptance: import a CSV with a bad row and check the reason
+  shows with its line number; import it twice and check the second pass adds nothing.
 
 ## Project mechanics
 

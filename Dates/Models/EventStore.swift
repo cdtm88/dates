@@ -137,6 +137,47 @@ final class EventStore {
         await rescheduleAll()
     }
 
+    // MARK: - Import (Phase 05)
+
+    /// Inserts a batch of already-validated candidates with one save and one reschedule.
+    ///
+    /// Import goes through the store like every other write (NOTIF-07), but not through
+    /// `createEvent` in a loop — a 200-row CSV must not rebuild the notification queue 200
+    /// times. Candidates naming an existing group (matched case-insensitively) join it;
+    /// everything else goes to `fallbackGroup`. Duplicates of stored events are screened
+    /// out again here, so re-importing a file cannot double the list even if a caller
+    /// bypasses the review step.
+    @discardableResult
+    func importEvents(_ candidates: [ImportCandidate], fallbackGroup: EventGroup?) async throws -> Int {
+        let (fresh, _) = ImportScreening.partition(candidates, existing: snapshots())
+        guard !fresh.isEmpty else { return 0 }
+
+        let resolvedFallback = try fallbackGroup ?? ungroupedGroup()
+        let groups = try context.fetch(FetchDescriptor<EventGroup>())
+        let groupsByName = Dictionary(
+            groups.map { ($0.name.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        for candidate in fresh {
+            let namedGroup = candidate.groupName.flatMap {
+                groupsByName[$0.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)]
+            }
+            let event = DateEvent(
+                name: candidate.name,
+                date: candidate.date,
+                type: candidate.type,
+                group: namedGroup ?? resolvedFallback
+            )
+            context.insert(event)
+        }
+        try context.save()
+
+        await requestAuthorisationOnFirstSave()
+        await rescheduleAll()
+        return fresh.count
+    }
+
     // MARK: - Groups
 
     @discardableResult

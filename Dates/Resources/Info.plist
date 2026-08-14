@@ -26,6 +26,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Dates reads your calendars to find birthdays and other yearly events you may want reminders for. Nothing is written back to your calendar.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

@@ -15,6 +15,7 @@
 		340785D2B69F957AAF19F983 /* EventListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378C969B90DA71665CC1CDF2 /* EventListView.swift */; };
 		3416641C92E45D976D8E926F /* EventStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 383B2215B735B97CFA835DE3 /* EventStore.swift */; };
 		3DDC82515B2BC445615D63D3 /* OffsetSelectionEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA717EC43CD61B2E072146C /* OffsetSelectionEditor.swift */; };
+		4C3C93B137281FC170945113 /* ImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE720E418B7A715529973B64 /* ImportTests.swift */; };
 		4E31E730ABEC80ED031F106A /* FakeNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4DFFAE94109E39B2D2DA70 /* FakeNotificationCenter.swift */; };
 		62CD1998E88A2E82E9AAC2D4 /* EventGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B95130E8E7188F06B6A79 /* EventGroup.swift */; };
 		63B5D3F3590FBF80AD87D220 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6CA71650233D487FEFECA9A /* EventFormatting.swift */; };
@@ -24,8 +25,12 @@
 		82912F976B60DC83D33EA4D4 /* DatesKit in Frameworks */ = {isa = PBXBuildFile; productRef = CB5EAF7A999CE0E236593847 /* DatesKit */; };
 		83D382A64E563415697C012B /* NotificationRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500FDC14800B53C54798EFAB /* NotificationRouter.swift */; };
 		8534090D1342EC9387CE2911 /* DatesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 313F5E16D1444A8487803910 /* DatesKit */; };
+		8551E69FF010E8D1F547E0BB /* ImportReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898D11D63A3AC4231D69EB86 /* ImportReviewView.swift */; };
+		8BD6F79CCF0CD4180A371B58 /* ImportFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6883CAA64BF9CD620CA8ADF3 /* ImportFlow.swift */; };
 		9110DA968AAE0CC983AB00C8 /* EventFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D5C0D6E3B6B61332F0242D /* EventFormView.swift */; };
+		9BE2AF89AE84EE37169831DB /* CSVExportDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3807D7BB70F95701291B0922 /* CSVExportDocument.swift */; };
 		9BE4C19BA167AAE4B7A23EB0 /* DateEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8840C170B054BF9F9CA0E999 /* DateEvent.swift */; };
+		AE62C02B0B8159053B1025F9 /* CalendarImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB4487CBEE47F5A691C1DDA7 /* CalendarImporter.swift */; };
 		B097D2BE5368F9623438367A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E08B5CF47408EFECFCE16E58 /* Assets.xcassets */; };
 		B9A3D7269317004253413984 /* EventDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1500FA33C3B6720B8E26D377 /* EventDetailView.swift */; };
 		B9C0D8F8B197CC515677C73B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF71E0BE8E081BB74EB86A6F /* SettingsView.swift */; };
@@ -59,25 +64,30 @@
 		1500FA33C3B6720B8E26D377 /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
 		266AB6DA98285D348FE0AFA2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		378C969B90DA71665CC1CDF2 /* EventListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListView.swift; sourceTree = "<group>"; };
+		3807D7BB70F95701291B0922 /* CSVExportDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVExportDocument.swift; sourceTree = "<group>"; };
 		383B2215B735B97CFA835DE3 /* EventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStore.swift; sourceTree = "<group>"; };
 		4EB04B02B4F0096D091E3120 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		500FDC14800B53C54798EFAB /* NotificationRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationRouter.swift; sourceTree = "<group>"; };
 		5ED87C418164B52BDBC856D7 /* DatesUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DatesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F1A67EA2D62F7747025E406 /* Dates.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Dates.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FA524433B51280F2C5AFEB3 /* EventRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRowView.swift; sourceTree = "<group>"; };
+		6883CAA64BF9CD620CA8ADF3 /* ImportFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportFlow.swift; sourceTree = "<group>"; };
 		706D92DBB542F573FFACE2C2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		736EFEF6DAD19404AE6DFA65 /* BackgroundRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRefresh.swift; sourceTree = "<group>"; };
 		8021A46696C18EAD6312816F /* DatesKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DatesKit; path = DatesKit; sourceTree = SOURCE_ROOT; };
 		8840C170B054BF9F9CA0E999 /* DateEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateEvent.swift; sourceTree = "<group>"; };
+		898D11D63A3AC4231D69EB86 /* ImportReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportReviewView.swift; sourceTree = "<group>"; };
 		9A8A9D4C1C8E1FB610053A3A /* GroupsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupsView.swift; sourceTree = "<group>"; };
 		A8E14883C6117BB8E17FE664 /* SchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerTests.swift; sourceTree = "<group>"; };
 		AB7B95130E8E7188F06B6A79 /* EventGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventGroup.swift; sourceTree = "<group>"; };
 		ABA717EC43CD61B2E072146C /* OffsetSelectionEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OffsetSelectionEditor.swift; sourceTree = "<group>"; };
+		AE720E418B7A715529973B64 /* ImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTests.swift; sourceTree = "<group>"; };
 		AF71E0BE8E081BB74EB86A6F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B36AEC3D70DCCF826EB5157C /* DayTicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayTicker.swift; sourceTree = "<group>"; };
 		BA8A34C4FB5507EAA2008BD1 /* DatesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesApp.swift; sourceTree = "<group>"; };
 		C65DB6D3122105A77A07834D /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
 		D5D5C0D6E3B6B61332F0242D /* EventFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormView.swift; sourceTree = "<group>"; };
+		DB4487CBEE47F5A691C1DDA7 /* CalendarImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarImporter.swift; sourceTree = "<group>"; };
 		E08B5CF47408EFECFCE16E58 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E347E64DA97FE82B25AED678 /* DatesTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DatesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA83EF3F1E7DCADF4CEF742E /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
@@ -135,6 +145,7 @@
 				378C969B90DA71665CC1CDF2 /* EventListView.swift */,
 				5FA524433B51280F2C5AFEB3 /* EventRowView.swift */,
 				9A8A9D4C1C8E1FB610053A3A /* GroupsView.swift */,
+				898D11D63A3AC4231D69EB86 /* ImportReviewView.swift */,
 				ABA717EC43CD61B2E072146C /* OffsetSelectionEditor.swift */,
 				706D92DBB542F573FFACE2C2 /* RootView.swift */,
 				AF71E0BE8E081BB74EB86A6F /* SettingsView.swift */,
@@ -177,10 +188,21 @@
 			name = Packages;
 			sourceTree = "<group>";
 		};
+		B7AFD718EA2307FCF036C688 /* Import */ = {
+			isa = PBXGroup;
+			children = (
+				DB4487CBEE47F5A691C1DDA7 /* CalendarImporter.swift */,
+				3807D7BB70F95701291B0922 /* CSVExportDocument.swift */,
+				6883CAA64BF9CD620CA8ADF3 /* ImportFlow.swift */,
+			);
+			path = Import;
+			sourceTree = "<group>";
+		};
 		BFF243895F9A1BC859FBACA2 /* DatesTests */ = {
 			isa = PBXGroup;
 			children = (
 				0F4DFFAE94109E39B2D2DA70 /* FakeNotificationCenter.swift */,
+				AE720E418B7A715529973B64 /* ImportTests.swift */,
 				FF8163408D7D8FBA6170D57B /* PersistenceTests.swift */,
 				A8E14883C6117BB8E17FE664 /* SchedulerTests.swift */,
 			);
@@ -190,6 +212,7 @@
 		F1AFD38869B966887816F398 /* Dates */ = {
 			isa = PBXGroup;
 			children = (
+				B7AFD718EA2307FCF036C688 /* Import */,
 				FB5BF20C667AA01FEC21ECE4 /* Models */,
 				4237D47D3B01067FAD6795C2 /* Notifications */,
 				574902FCCE133EE4E184DD69 /* Resources */,
@@ -293,9 +316,14 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					1F2F1AD88DD1482C28FB56A8 = {
+						DevelopmentTeam = 222HG57693;
 						TestTargetID = 6953A73F8ACA19FB8FF0FD02;
 					};
+					5E7FB5F6020CA994E39400E0 = {
+						DevelopmentTeam = 222HG57693;
+					};
 					6953A73F8ACA19FB8FF0FD02 = {
+						DevelopmentTeam = 222HG57693;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -341,6 +369,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E31E730ABEC80ED031F106A /* FakeNotificationCenter.swift in Sources */,
+				4C3C93B137281FC170945113 /* ImportTests.swift in Sources */,
 				DE6B87472FC274EE5D978285 /* PersistenceTests.swift in Sources */,
 				6F8FB6AFDF3B3774FC2B4ED3 /* SchedulerTests.swift in Sources */,
 			);
@@ -360,6 +389,8 @@
 			files = (
 				1DBD6DADE3D3732E55C615A4 /* AppSettings.swift in Sources */,
 				2B5EF73289617E44D967AB9E /* BackgroundRefresh.swift in Sources */,
+				9BE2AF89AE84EE37169831DB /* CSVExportDocument.swift in Sources */,
+				AE62C02B0B8159053B1025F9 /* CalendarImporter.swift in Sources */,
 				9BE4C19BA167AAE4B7A23EB0 /* DateEvent.swift in Sources */,
 				10AEFAD0C6E210E840E6CA77 /* DatesApp.swift in Sources */,
 				27D4459E0486367C7022F07A /* DatesModelContainer.swift in Sources */,
@@ -373,6 +404,8 @@
 				DF9892E72A4608EF34789288 /* EventRowView.swift in Sources */,
 				3416641C92E45D976D8E926F /* EventStore.swift in Sources */,
 				BC697B3378405F2ED28241C8 /* GroupsView.swift in Sources */,
+				8BD6F79CCF0CD4180A371B58 /* ImportFlow.swift in Sources */,
+				8551E69FF010E8D1F547E0BB /* ImportReviewView.swift in Sources */,
 				83D382A64E563415697C012B /* NotificationRouter.swift in Sources */,
 				C242406DB2CB069F13A2A146 /* NotificationScheduler.swift in Sources */,
 				3DDC82515B2BC445615D63D3 /* OffsetSelectionEditor.swift in Sources */,
@@ -510,6 +543,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 222HG57693;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -568,6 +602,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 222HG57693;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;

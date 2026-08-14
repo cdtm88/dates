@@ -2,9 +2,10 @@
 
 Birthday, anniversary and key-date reminders for iOS. Native, offline-first, no backend.
 
-This repository implements **Milestone 1 of the PRD — phases 01 to 04**: the data model, groups
-and offsets, the chronological list and detail views, and the rolling-window notification
-engine. That is the point the PRD calls the first TestFlight-worthy build.
+This repository implements **phases 01 to 05 of the PRD**: the data model, groups and
+offsets, the chronological list and detail views, the rolling-window notification engine
+(Milestone 1, the first TestFlight-worthy build), and calendar and CSV import/export
+(Phase 05).
 
 ## Layout
 
@@ -76,7 +77,7 @@ xcodebuild test -project Dates.xcodeproj -scheme Dates \
   -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
-Current state: **70 of 70 DatesKit tests pass on Linux, 20 of 20 DatesTests and 5 of 5
+Current state: **95 of 95 DatesKit tests pass, 26 of 26 DatesTests and 5 of 5
 DatesUITests pass on an iPhone simulator.** All suites run on every pull request. The UI
 suite launches the real app with `--uitest` (an empty in-memory store) and drives the
 acceptance flows: first launch, creating a date, 29 February handling, and the reminder
@@ -98,9 +99,24 @@ All three are described with their reasoning in `docs/verification.md`:
   set. The PRD's Job 2 is explicit that advance alerts must stay meaningful rather than
   becoming noise, and every group defaulting to all three would do the opposite.
 
-## Not in this milestone
+## Import and export (Phase 05)
 
-Phases 05 to 08 are untouched: calendar and CSV import/export, iCloud sync, the Light/Dark
-appearance setting, and release readiness. The empty state shows the two import routes as
-disabled buttons rather than hiding them, so that screen does not need redesigning when
-Phase 05 lands.
+Both import routes go through one review screen: nothing is saved until the user has seen
+what will be added, what already exists (skipped as duplicates), and — for CSV — which rows
+could not be read, each with its line number and reason (IMP-06). Batch import is a single
+save and a single notification reschedule, and re-importing the same file adds nothing.
+
+- **CSV.** Header `Name,Type,Month,Day,Year,Group`, columns matched by name in any order;
+  `Year` and `Group` optional. Rows naming an existing group join it (case-insensitively);
+  unknown names fall back to a group picked at review time rather than silently creating
+  groups. Export writes the same schema from Settings, so an exported file re-imports as
+  pure duplicates.
+- **Calendar.** Reads only the system Birthdays calendar and events with a yearly
+  recurrence rule — meetings are not annual dates. Years are left unknown: an occurrence's
+  year is not a birth year, and a wrong age is worse than none. Requires the iOS 17
+  full-access calendar permission (EventKit has no read-only tier).
+
+## Not yet built
+
+Phases 06 to 08 are untouched: iCloud sync, the Light/Dark appearance setting, and release
+readiness.

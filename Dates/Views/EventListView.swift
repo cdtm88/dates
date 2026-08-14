@@ -12,12 +12,20 @@ struct EventListView: View {
     @Query private var events: [DateEvent]
     @Query(sort: \EventGroup.createdAt) private var groups: [EventGroup]
 
+    /// The list's three modal destinations, driven by one item so only one sheet modifier
+    /// hangs off the content node. Stacking a boolean `.sheet` per destination broke on
+    /// the iOS 18 simulator once the import presenters joined the same chain: taps landed,
+    /// state flipped, and the sheet never came — with no log line to say why.
+    private enum ActiveSheet: String, Identifiable {
+        case addEvent, groups, settings
+        var id: String { rawValue }
+    }
+
     @State private var path: [UUID] = []
     @State private var searchText = ""
     @State private var selectedGroupID: UUID?
-    @State private var isAddingEvent = false
-    @State private var isShowingGroups = false
-    @State private var isShowingSettings = false
+    @State private var activeSheet: ActiveSheet?
+    @State private var importFlow = ImportFlow()
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -28,16 +36,20 @@ struct EventListView: View {
                 .navigationDestination(for: UUID.self) { eventID in
                     EventDetailView(eventID: eventID, store: store, now: now)
                 }
-                .sheet(isPresented: $isAddingEvent) {
-                    EventFormView(mode: .create, store: store)
-                }
-                .sheet(isPresented: $isShowingGroups) {
-                    GroupsView(store: store)
-                }
-                .sheet(isPresented: $isShowingSettings) {
-                    SettingsView(store: store, settings: settings)
+                .sheet(item: $activeSheet) { sheet in
+                    switch sheet {
+                    case .addEvent:
+                        EventFormView(mode: .create, store: store)
+                    case .groups:
+                        GroupsView(store: store)
+                    case .settings:
+                        SettingsView(store: store, settings: settings)
+                    }
                 }
         }
+        // On the stack rather than the content, so the import presenters (a sheet, the file
+        // picker and an alert) never share a node with the sheet above.
+        .importFlow(importFlow, store: store)
         // A notification tap opens that event's detail view and does nothing else (NOTIF-10).
         .onChange(of: router.pendingEventID) {
             guard let eventID = router.consumePendingEventID() else { return }
@@ -51,7 +63,12 @@ struct EventListView: View {
     @ViewBuilder
     private var content: some View {
         if events.isEmpty {
-            EmptyStateView(onAddManually: { isAddingEvent = true })
+            EmptyStateView(
+                onAddManually: { activeSheet = .addEvent },
+                importAvailable: true,
+                onImportCalendar: { importFlow.fetchCalendarCandidates(now: now) },
+                onImportCSV: { importFlow.isPickingCSV = true }
+            )
         } else if rows.isEmpty {
             ContentUnavailableView.search(text: searchText)
         } else {
@@ -102,13 +119,13 @@ struct EventListView: View {
                 Divider()
 
                 Button {
-                    isShowingGroups = true
+                    activeSheet = .groups
                 } label: {
                     Label("Manage groups", systemImage: "folder")
                 }
 
                 Button {
-                    isShowingSettings = true
+                    activeSheet = .settings
                 } label: {
                     Label("Settings", systemImage: "gear")
                 }
@@ -122,10 +139,31 @@ struct EventListView: View {
         }
 
         ToolbarItem(placement: .primaryAction) {
-            Button {
-                isAddingEvent = true
+            Menu {
+                Button {
+                    activeSheet = .addEvent
+                } label: {
+                    Label("Add a date", systemImage: "plus")
+                }
+
+                Divider()
+
+                Button {
+                    importFlow.fetchCalendarCandidates(now: now)
+                } label: {
+                    Label("Import from Calendar", systemImage: "calendar")
+                }
+                .disabled(importFlow.isFetchingCalendar)
+
+                Button {
+                    importFlow.isPickingCSV = true
+                } label: {
+                    Label("Import a CSV", systemImage: "doc.text")
+                }
             } label: {
                 Label("Add a date", systemImage: "plus")
+            } primaryAction: {
+                activeSheet = .addEvent
             }
         }
     }

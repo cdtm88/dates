@@ -9,7 +9,9 @@ struct SettingsView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var authorizationStatus: UNAuthorizationStatus?
-    @State private var pendingCount: Int?
+    @State private var isExportingCSV = false
+    @State private var exportResultMessage: String?
+    @State private var importFlow = ImportFlow()
 
     var body: some View {
         NavigationStack {
@@ -23,7 +25,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Reminder time")
                 } footer: {
-                    Text("Applies to every reminder, on the day and in advance.")
+                    Text(reminderFooter)
                 }
 
                 if let authorizationStatus, authorizationStatus == .denied {
@@ -35,25 +37,36 @@ struct SettingsView: View {
                     }
                 }
 
-                Section {
-                    if let summary = store.queueSummary {
-                        LabeledContent("Scheduled", value: "\(summary.scheduledCount) of \(summary.ceiling)")
-                        LabeledContent("Dates covered", value: "\(summary.coveredEventCount) of \(summary.totalEventCount)")
-                        if let horizon = summary.coverageHorizon {
-                            LabeledContent("Covered until", value: horizon.formatted(date: .abbreviated, time: .omitted))
-                        }
-                        if summary.failedCount > 0 {
-                            LabeledContent("Could not schedule", value: "\(summary.failedCount)")
-                                .foregroundStyle(.red)
-                        }
+                if let summary = store.queueSummary, summary.failedCount > 0 {
+                    Section {
+                        Label("\(summary.failedCount) reminders could not be scheduled", systemImage: "exclamationmark.triangle")
+                            .foregroundStyle(.red)
                     }
-                    if let pendingCount {
-                        LabeledContent("Pending on device", value: "\(pendingCount)")
+                }
+
+                Section {
+                    Button {
+                        importFlow.fetchCalendarCandidates()
+                    } label: {
+                        Label("Import from Calendar", systemImage: "calendar")
+                    }
+                    .disabled(importFlow.isFetchingCalendar)
+
+                    Button {
+                        importFlow.isPickingCSV = true
+                    } label: {
+                        Label("Import a CSV", systemImage: "doc.text")
+                    }
+
+                    Button {
+                        isExportingCSV = true
+                    } label: {
+                        Label("Export as CSV", systemImage: "square.and.arrow.up")
                     }
                 } header: {
-                    Text("Reminder queue")
+                    Text("Your data")
                 } footer: {
-                    Text("iOS allows 64 pending reminders at once, so the nearest dates are scheduled first and the queue is topped up each time you open the app.")
+                    Text("Importing shows a review first and skips the dates you already have. Export writes a file readable by any spreadsheet.")
                 }
             }
             .navigationTitle("Settings")
@@ -62,6 +75,28 @@ struct SettingsView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                 }
+            }
+            .importFlow(importFlow, store: store)
+            // The review sheet closing means an import may have rebuilt the queue.
+            .onChange(of: importFlow.payload) { _, payload in
+                if payload == nil {
+                    Task { await refreshDiagnostics() }
+                }
+            }
+            .fileExporter(
+                isPresented: $isExportingCSV,
+                document: CSVExportDocument(text: EventCSV.encode(store.snapshots())),
+                contentType: .commaSeparatedText,
+                defaultFilename: "Dates"
+            ) { result in
+                if case .failure(let error) = result {
+                    exportResultMessage = error.localizedDescription
+                }
+            }
+            .alert("Export failed", isPresented: .constant(exportResultMessage != nil)) {
+                Button("OK") { exportResultMessage = nil }
+            } message: {
+                Text(exportResultMessage ?? "")
             }
             .task { await refreshDiagnostics() }
             .onChange(of: settings.notificationTime) {
@@ -89,8 +124,26 @@ struct SettingsView: View {
         )
     }
 
+    /// One quiet sentence in place of the old diagnostics table: what is scheduled and how
+    /// far it reaches (NOTIF-04 stays observable), with the mechanics kept out of sight.
+    private var reminderFooter: String {
+        let base = "Applies to every reminder, on the day and in advance."
+        guard let summary = store.queueSummary,
+              summary.totalEventCount > 0,
+              let horizon = summary.coverageHorizon
+        else { return base }
+
+        let through = horizon.formatted(date: .abbreviated, time: .omitted)
+        if summary.wasTruncated {
+            return base + " Your nearest \(summary.coveredEventCount) of \(summary.totalEventCount) dates have reminders scheduled, through \(through); the rest join as their day approaches."
+        }
+        if summary.totalEventCount == 1 {
+            return base + " Your date has reminders scheduled through \(through)."
+        }
+        return base + " All \(summary.totalEventCount) dates have reminders scheduled through \(through)."
+    }
+
     private func refreshDiagnostics() async {
         authorizationStatus = await NotificationScheduler.shared.authorizationStatus()
-        pendingCount = await NotificationScheduler.shared.pendingEventNotificationCount()
     }
 }
