@@ -119,7 +119,7 @@ save and a single notification reschedule, and re-importing the same file adds n
 
 ## iCloud sync (Phase 06)
 
-The SwiftData store is CloudKit-backed (`.private("iCloud.com.cdtm88.Dates")`). The schema
+The SwiftData store is CloudKit-backed (`.private("iCloud.com.moorelabs.Dates")`). The schema
 was kept CloudKit-shaped from Phase 01 — defaults on every attribute, optional
 relationships — so this was the entitlement plus one flag, with no migration. Without an
 iCloud account everything stays local and the app is unaffected; Settings shows which of
@@ -133,5 +133,5 @@ devices.
 
 ## Not yet built
 
-Phase 08 (release readiness) is untouched, and the app is still named "Dates" with bundle
-id `com.cdtm88.Dates` — the PRD flags the name as needed before Phase 08.
+Phase 08 (release readiness) is untouched. The naming decision the PRD wanted before it is
+made: the app is "Dates", bundle id `com.moorelabs.Dates`.

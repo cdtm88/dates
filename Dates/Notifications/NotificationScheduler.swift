@@ -42,7 +42,7 @@ actor NotificationScheduler {
     /// Carried in `userInfo` so a tap can open the right event (NOTIF-10).
     static let eventIDUserInfoKey = "eventID"
 
-    private static let logger = Logger(subsystem: "com.cdtm88.Dates", category: "notifications")
+    private static let logger = Logger(subsystem: "com.moorelabs.Dates", category: "notifications")
 
     private let center: NotificationCenterProtocol
     private let planner: NotificationPlanner
