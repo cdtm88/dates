@@ -93,8 +93,7 @@ final class DatesUITests: XCTestCase {
         addEvent(named: "Queue Check")
         XCTAssertTrue(app.staticTexts["Queue Check"].waitForExistence(timeout: 10))
 
-        tapWhenReady(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Filter and settings'")).firstMatch)
-        tapWhenReady(app.buttons["Settings"])
+        openSettingsFromMenu()
 
         XCTAssertTrue(app.staticTexts["Reminder time"].waitForExistence(timeout: 10))
 
@@ -118,6 +117,26 @@ final class DatesUITests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    /// Opens Settings via the filter menu, preferring a query scoped to the open menu's
+    /// collection view — on iOS 18 the unscoped `buttons["Settings"]` can match a hidden
+    /// mirror of the menu content whose frame is nowhere near the visible row, so the tap
+    /// closes the menu instead of firing the action. One retry, and a hierarchy dump to
+    /// the console if the sheet still refuses, so a CI failure is diagnosable from the log.
+    private func openSettingsFromMenu() {
+        let menuButton = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Filter and settings'")).firstMatch
+        for attempt in 0..<2 {
+            tapWhenReady(menuButton)
+
+            let scoped = app.collectionViews.buttons["Settings"]
+            let item = scoped.waitForExistence(timeout: 3) ? scoped : app.buttons["Settings"]
+            tapWhenReady(item)
+
+            if app.staticTexts["Reminder time"].waitForExistence(timeout: 5) { return }
+            print("openSettingsFromMenu attempt \(attempt) failed; hierarchy:\n\(app.debugDescription)")
+        }
+        XCTFail("The Settings sheet never presented from the menu")
+    }
 
     /// Creates an event through the form with default date and group, answering the
     /// notification permission prompt if this install has not seen it yet.
