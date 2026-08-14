@@ -38,7 +38,7 @@ struct QueueSummary: Equatable {
 @MainActor
 @Observable
 final class EventStore {
-    private static let logger = Logger(subsystem: "com.cdtm88.Dates", category: "store")
+    private static let logger = Logger(subsystem: "com.moorelabs.Dates", category: "store")
 
     private let context: ModelContext
     private let scheduler: NotificationScheduler

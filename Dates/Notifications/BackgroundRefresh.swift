@@ -18,7 +18,7 @@ actor EventSnapshotProvider {
 /// task, so a user who ignores the app for months may still miss alerts (PRD §8).
 enum BackgroundRefresh {
     /// Must also appear in `BGTaskSchedulerPermittedIdentifiers` in Info.plist.
-    static let taskIdentifier = "com.cdtm88.Dates.queueTopUp"
+    static let taskIdentifier = "com.moorelabs.Dates.queueTopUp"
 
     /// Asks for another run. Called after each refresh and on entering the background, since
     /// a submitted request is consumed once it runs.

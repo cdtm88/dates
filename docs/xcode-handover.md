@@ -143,7 +143,7 @@ schedules at its own discretion and may never run when you want it to.
 ## Groundwork already in place
 
 - **Phase 06 (CloudKit) is built.** The store is CloudKit-backed —
-  `DatesModelContainer.makeContainer` passes `.private("iCloud.com.cdtm88.Dates")` — with
+  `DatesModelContainer.makeContainer` passes `.private("iCloud.com.moorelabs.Dates")` — with
   the entitlement in `project.yml`. Tests and `--uitest` pass `syncsWithCloudKit: false`;
   `DatesApp.makeBestContainer` falls back to local-only when the entitlement is missing.
   The schema must STAY CloudKit-shaped: every attribute defaulted, relationships optional,
@@ -180,6 +180,9 @@ with `python3 Tools/check_project_sync.py`.
 2. The 400-day scheduling window replaces the PRD's assumed 60 days. §9 explicitly said to tune
    it in Phase 04, and the reasoning is in `docs/verification.md`, but it is a visible change to
    a stated assumption.
-3. The app is still named "Dates" with bundle id `com.cdtm88.Dates`. The PRD flags the name as
-   needed before Phase 08 and ideally before the bundle id was set. Renaming is cheap now and
-   expensive after the first TestFlight build.
+3. ~~The app name and bundle id.~~ Decided (August 2026): the app is **Dates**, the bundle id
+   is **`com.moorelabs.Dates`** under the owner's moorelabs domain, and the CloudKit container
+   is `iCloud.com.moorelabs.Dates`. These lock permanently at the first App Store Connect
+   upload — do not change them again. The App Store *listing* name may still need a suffix
+   ("Dates — Birthday Reminders") since bare "Dates" is unlikely to be available; that is a
+   Phase 08 listing detail, not a code change.

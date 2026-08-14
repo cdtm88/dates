@@ -7,7 +7,7 @@ enum DatesModelContainer {
     static let schema = Schema([DateEvent.self, EventGroup.self])
 
     /// The private-database container CloudKit syncs into (Phase 06, SYNC).
-    static let cloudKitContainerIdentifier = "iCloud.com.cdtm88.Dates"
+    static let cloudKitContainerIdentifier = "iCloud.com.moorelabs.Dates"
 
     /// The on-disk container, CloudKit-backed by default (Phase 06).
     ///

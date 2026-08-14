@@ -107,7 +107,7 @@ final class DateEvent {
     /// grouping logic never has to deal with a nil id.
     static let orphanGroupID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
 
-    private static let logger = Logger(subsystem: "com.cdtm88.Dates", category: "model")
+    private static let logger = Logger(subsystem: "com.moorelabs.Dates", category: "model")
 
     func touch(_ date: Date = Date()) {
         updatedAt = date

@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
-		<string>iCloud.com.cdtm88.Dates</string>
+		<string>iCloud.com.moorelabs.Dates</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>
