@@ -119,13 +119,13 @@ struct EventListView: View {
                 Divider()
 
                 Button {
-                    activeSheet = .groups
+                    presentFromMenu(.groups)
                 } label: {
                     Label("Manage groups", systemImage: "folder")
                 }
 
                 Button {
-                    activeSheet = .settings
+                    presentFromMenu(.settings)
                 } label: {
                     Label("Settings", systemImage: "gear")
                 }
@@ -141,7 +141,7 @@ struct EventListView: View {
         ToolbarItem(placement: .primaryAction) {
             Menu {
                 Button {
-                    activeSheet = .addEvent
+                    presentFromMenu(.addEvent)
                 } label: {
                     Label("Add a date", systemImage: "plus")
                 }
@@ -165,6 +165,17 @@ struct EventListView: View {
             } primaryAction: {
                 activeSheet = .addEvent
             }
+        }
+    }
+
+    /// Presents a sheet from inside a menu. Setting the state synchronously in the action
+    /// races the menu's dismissal transaction, and iOS 18 resolves that race by dropping
+    /// the presentation — deterministically in CI, never on newer simulators. The pause is
+    /// hidden inside the menu's own dismissal animation.
+    private func presentFromMenu(_ sheet: ActiveSheet) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(350))
+            activeSheet = sheet
         }
     }
 }

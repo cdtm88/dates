@@ -130,9 +130,7 @@ schedules at its own discretion and may never run when you want it to.
 
 ## What is deliberately absent
 
-- **Phases 06 to 08.** No CloudKit, no appearance setting, no release work.
-- **UI-01 to UI-03 are Phase 07,** so there is no Light/Dark setting and the app follows the
-  system. The PRD wants Light as the first-launch default.
+- **Phases 06 and 08.** No CloudKit, no release work.
 - **PERF-01 and PERF-02 are unverified** — device measurements on an iPhone 12 or newer. The
   timings in the test suites guard the algorithm, not the device figure.
 

@@ -98,6 +98,11 @@ final class DatesUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["Reminder time"].waitForExistence(timeout: 10))
 
+        // The appearance control defaults to Light on a fresh install (UI-01, Phase 07).
+        let lightSegment = app.buttons["Light"]
+        XCTAssertTrue(lightSegment.exists)
+        XCTAssertTrue(lightSegment.isSelected, "Light must be the first-launch default")
+
         // The queue read-out is a footer sentence now, not a diagnostics table.
         let coverage = app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS 'reminders scheduled through'")

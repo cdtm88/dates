@@ -17,6 +17,17 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
+                    Picker("Appearance", selection: $settings.appearance) {
+                        ForEach(Appearance.allCases) { appearance in
+                            Text(appearance.displayName).tag(appearance)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                } header: {
+                    Text("Appearance")
+                }
+
+                Section {
                     DatePicker(
                         "Notify me at",
                         selection: notificationTimeBinding,
@@ -67,6 +78,24 @@ struct SettingsView: View {
                     Text("Your data")
                 } footer: {
                     Text("Importing shows a review first and skips the dates you already have. Export writes a file readable by any spreadsheet.")
+                }
+
+                // The wordmark is decorative; the version below it is the useful part.
+                Section {
+                    EmptyView()
+                } footer: {
+                    VStack(spacing: 8) {
+                        Image("Wordmark")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 28)
+                            .accessibilityHidden(true)
+                        if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                            Text("Version \(version)")
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 8)
                 }
             }
             .navigationTitle("Settings")

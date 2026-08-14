@@ -21,6 +21,9 @@ struct RootView: View {
                 ProgressView()
             }
         }
+        // Applied at the root so every sheet and alert follows; nil means the device decides.
+        // Light is the first-launch default (UI-01, Phase 07).
+        .preferredColorScheme(settings.appearance.colorScheme)
         .task {
             guard store == nil else { return }
 

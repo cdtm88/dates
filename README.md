@@ -2,10 +2,10 @@
 
 Birthday, anniversary and key-date reminders for iOS. Native, offline-first, no backend.
 
-This repository implements **phases 01 to 05 of the PRD**: the data model, groups and
+This repository implements **phases 01 to 05 and 07 of the PRD**: the data model, groups and
 offsets, the chronological list and detail views, the rolling-window notification engine
-(Milestone 1, the first TestFlight-worthy build), and calendar and CSV import/export
-(Phase 05).
+(Milestone 1, the first TestFlight-worthy build), calendar and CSV import/export (Phase 05),
+and the Light/Dark appearance setting with Light as the first-launch default (Phase 07).
 
 ## Layout
 
@@ -77,7 +77,7 @@ xcodebuild test -project Dates.xcodeproj -scheme Dates \
   -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
-Current state: **95 of 95 DatesKit tests pass, 26 of 26 DatesTests and 5 of 5
+Current state: **95 of 95 DatesKit tests pass, 30 of 30 DatesTests and 5 of 5
 DatesUITests pass on an iPhone simulator.** All suites run on every pull request. The UI
 suite launches the real app with `--uitest` (an empty in-memory store) and drives the
 acceptance flows: first launch, creating a date, 29 February handling, and the reminder
@@ -118,5 +118,4 @@ save and a single notification reschedule, and re-importing the same file adds n
 
 ## Not yet built
 
-Phases 06 to 08 are untouched: iCloud sync, the Light/Dark appearance setting, and release
-readiness.
+Phases 06 and 08 are untouched: iCloud sync and release readiness.
