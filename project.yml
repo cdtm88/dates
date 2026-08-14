@@ -32,6 +32,8 @@ targets:
     dependencies:
       - package: DatesKit
         product: DatesKit
+      - target: DatesWidget
+        embed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.moorelabs.Dates
@@ -61,11 +63,11 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         ITSAppUsesNonExemptEncryption: false
-        # Calendar import is read-only, but EventKit has no read-only tier: reading
-        # requires full access (IMP, Phase 05).
-        NSCalendarsFullAccessUsageDescription: >-
-          Dates reads your calendars to find birthdays and other yearly events you may
-          want reminders for. Nothing is written back to your calendar.
+        # Contacts import is read-only; only names, birthdays and anniversary dates
+        # are read (IMP, Phase 05).
+        NSContactsUsageDescription: >-
+          Dates reads your contacts to find birthdays and anniversaries you may want
+          reminders for. Nothing is written back to your contacts.
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
@@ -77,6 +79,35 @@ targets:
           - remote-notification
         BGTaskSchedulerPermittedIdentifiers:
           - com.moorelabs.Dates.queueTopUp
+
+  DatesWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: DatesWidget
+    dependencies:
+      - package: DatesKit
+        product: DatesKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.moorelabs.Dates.DatesWidget
+        PRODUCT_NAME: DatesWidget
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        SKIP_INSTALL: YES
+        # One entitlements file for both configs: the widget needs only the app group,
+        # which personal teams can provision, so Debug and Release do not differ.
+        CODE_SIGN_ENTITLEMENTS: DatesWidget/DatesWidget.entitlements
+    info:
+      path: DatesWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Dates
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
 
   DatesTests:
     type: bundle.unit-test

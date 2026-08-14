@@ -38,28 +38,34 @@ not on the App Store or TestFlight, and device notification testing is still blo
 paid Apple Developer Program membership. Expect the data model to be stable and the release
 plumbing to be absent.
 
-Test coverage is real: 130 automated tests across the domain logic, the persistence and
+Test coverage is real: 143 automated tests across the domain logic, the persistence and
 scheduling layer, and the UI flows, all run on every pull request.
 
 ## Built with
 
 Swift 5.9 and SwiftUI on iOS 17 or later, iPhone only. SwiftData for storage, CloudKit for
-private sync, EventKit for calendar import, and UserNotifications for reminders. The Xcode
-project is generated from `project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+private sync, Contacts for importing birthdays and anniversaries, UserNotifications for
+reminders, and WidgetKit for the home and lock screen widgets. The Xcode project is
+generated from `project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ## Features
 
 - **One list, in the order things happen.** Upcoming dates first, with ages shown where the
-  birth year is known, and passed dates rolling to the bottom for next year.
+  birth year is known, and passed dates rolling to the bottom for next year. Milestone
+  years — round birthdays, coming-of-age years, notable anniversaries — are marked so the
+  ones worth planning for stand out.
+- **On your home and lock screen.** A widget shows the next few dates with their
+  countdowns, refreshed at midnight and after every change in the app.
 - **Reminders that match how much notice you need.** Seven days, three days, on the day, or
   any combination, set per date or inherited from its group.
 - **Groups with sensible defaults.** Close family gets the full run of advance warnings;
   wider circles get a single day-of nudge, so the alerts stay worth reading.
 - **A queue that does not run dry.** Reminders are topped up on launch and in the
   background, covering more than a year ahead within iOS's scheduling limits.
-- **Bring your dates with you.** Import from the iOS Birthdays calendar or a CSV, with a
-  review screen showing what will be added, what is a duplicate and what could not be read.
-  Nothing is saved until you approve it. Export back to CSV at any time.
+- **Bring your dates with you.** Import birthdays and anniversaries from your contacts, or
+  any dates from a CSV, with a review screen showing what will be added, what is a duplicate
+  and what could not be read. Nothing is saved until you approve it. Export back to CSV at
+  any time.
 - **Fully offline, optionally synced.** No account required. iCloud sync is private and
   automatic when you have an account, and invisible when you do not.
 - **Light and dark**, following the system or pinned to either.

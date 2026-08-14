@@ -18,7 +18,7 @@ import sys
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 PBXPROJ = REPO / "Dates.xcodeproj" / "project.pbxproj"
-SOURCE_ROOTS = ["Dates", "DatesTests", "DatesUITests"]
+SOURCE_ROOTS = ["Dates", "DatesTests", "DatesUITests", "DatesWidget"]
 
 
 def main() -> int:

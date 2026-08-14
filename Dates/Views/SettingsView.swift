@@ -10,6 +10,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var authorizationStatus: UNAuthorizationStatus?
     @State private var isExportingCSV = false
+    @State private var exportDocument: CSVExportDocument?
     @State private var exportResultMessage: String?
     @State private var importFlow = ImportFlow()
 
@@ -57,11 +58,11 @@ struct SettingsView: View {
 
                 Section {
                     Button {
-                        importFlow.fetchCalendarCandidates()
+                        importFlow.fetchContactCandidates()
                     } label: {
-                        Label("Import from Calendar", systemImage: "calendar")
+                        Label("Import from Contacts", systemImage: "person.crop.circle")
                     }
-                    .disabled(importFlow.isFetchingCalendar)
+                    .disabled(importFlow.isFetchingContacts)
 
                     Button {
                         importFlow.isPickingCSV = true
@@ -70,6 +71,9 @@ struct SettingsView: View {
                     }
 
                     Button {
+                        // Encoded once here, not in the `fileExporter` argument, which is
+                        // re-evaluated on every body pass whether or not an export is on.
+                        exportDocument = CSVExportDocument(text: EventCSV.encode(store.snapshots()))
                         isExportingCSV = true
                     } label: {
                         Label("Export as CSV", systemImage: "square.and.arrow.up")
@@ -130,10 +134,11 @@ struct SettingsView: View {
             }
             .fileExporter(
                 isPresented: $isExportingCSV,
-                document: CSVExportDocument(text: EventCSV.encode(store.snapshots())),
+                document: exportDocument,
                 contentType: .commaSeparatedText,
                 defaultFilename: "Dates"
             ) { result in
+                exportDocument = nil
                 if case .failure(let error) = result {
                     exportResultMessage = error.localizedDescription
                 }

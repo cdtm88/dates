@@ -84,6 +84,16 @@ enum EventFormatting {
         event.date.year.map(String.init)
     }
 
+    /// One line for a milestone year, or nil in an ordinary year so nothing is shown.
+    static func milestoneLine(_ event: EventSnapshot, now: Date, calendar: Calendar = .current) -> String? {
+        guard let years = event.milestoneYears(from: now, calendar: calendar) else { return nil }
+        if event.type.countsAge {
+            return "Turns \(years) — a milestone birthday"
+        }
+        let unit = years == 1 ? "year" : "years"
+        return "\(years) \(unit) — a milestone"
+    }
+
     static func offsetsSummary(_ offsets: OffsetSelection) -> String {
         guard !offsets.isEmpty else { return "No alerts" }
         return offsets.displayOrderedOffsets.map(\.shortLabel).joined(separator: ", ")
@@ -103,6 +113,9 @@ enum EventFormatting {
         parts.append(daysUntil(event, now: now, calendar: calendar))
         if let badge = yearsBadge(event, now: now, calendar: calendar) {
             parts.append(badge)
+            if event.milestoneYears(from: now, calendar: calendar) != nil {
+                parts.append("a milestone")
+            }
         }
         parts.append("Group \(event.groupName)")
         return parts.joined(separator: ", ")

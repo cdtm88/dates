@@ -11,6 +11,7 @@
 		14B12555A0A9D62EB11A5AE2 /* DayTicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36AEC3D70DCCF826EB5157C /* DayTicker.swift */; };
 		1DBD6DADE3D3732E55C615A4 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB04B02B4F0096D091E3120 /* AppSettings.swift */; };
 		27D4459E0486367C7022F07A /* DatesModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBE5C59C6B427D8090E9FA4 /* DatesModelContainer.swift */; };
+		2A66BABC650158AE8717D42F /* DatesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2A76D08BB6EC10EBE0C58A80 /* DatesKit */; };
 		2B5EF73289617E44D967AB9E /* BackgroundRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736EFEF6DAD19404AE6DFA65 /* BackgroundRefresh.swift */; };
 		340785D2B69F957AAF19F983 /* EventListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378C969B90DA71665CC1CDF2 /* EventListView.swift */; };
 		3416641C92E45D976D8E926F /* EventStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 383B2215B735B97CFA835DE3 /* EventStore.swift */; };
@@ -31,16 +32,19 @@
 		9110DA968AAE0CC983AB00C8 /* EventFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D5C0D6E3B6B61332F0242D /* EventFormView.swift */; };
 		9BE2AF89AE84EE37169831DB /* CSVExportDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3807D7BB70F95701291B0922 /* CSVExportDocument.swift */; };
 		9BE4C19BA167AAE4B7A23EB0 /* DateEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8840C170B054BF9F9CA0E999 /* DateEvent.swift */; };
-		AE62C02B0B8159053B1025F9 /* CalendarImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB4487CBEE47F5A691C1DDA7 /* CalendarImporter.swift */; };
 		B097D2BE5368F9623438367A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E08B5CF47408EFECFCE16E58 /* Assets.xcassets */; };
+		B4E12DC995F3FC59435FA800 /* ContactsImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7D44D2EBC1A326519C1BA1 /* ContactsImporter.swift */; };
+		B55D728316C15A57F2688988 /* UpcomingDatesWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E205A5ADC7B1806DB6B00BA /* UpcomingDatesWidget.swift */; };
 		B9A3D7269317004253413984 /* EventDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1500FA33C3B6720B8E26D377 /* EventDetailView.swift */; };
 		B9C0D8F8B197CC515677C73B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF71E0BE8E081BB74EB86A6F /* SettingsView.swift */; };
 		BC697B3378405F2ED28241C8 /* GroupsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8A9D4C1C8E1FB610053A3A /* GroupsView.swift */; };
 		C242406DB2CB069F13A2A146 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65DB6D3122105A77A07834D /* NotificationScheduler.swift */; };
+		DD0C747E2D894042A7787D5C /* DatesWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 999B0150F61EBD1FBEBD3F62 /* DatesWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DE6B87472FC274EE5D978285 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8163408D7D8FBA6170D57B /* PersistenceTests.swift */; };
 		DF9892E72A4608EF34789288 /* EventRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA524433B51280F2C5AFEB3 /* EventRowView.swift */; };
 		EA1AEBB2D621303683F8C42B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 45DCD2F4C7F98BB3C3336399 /* PrivacyInfo.xcprivacy */; };
 		F4E465320C909E230564FFBC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706D92DBB542F573FFACE2C2 /* RootView.swift */; };
+		F7A17BCD7A95BE6DD5AD39C4 /* DatesWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2519F07B42CDF26B754B2FC9 /* DatesWidgetBundle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,13 +62,36 @@
 			remoteGlobalIDString = 6953A73F8ACA19FB8FF0FD02;
 			remoteInfo = Dates;
 		};
+		F5C5680331EA2CEF1A4132EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFA3F3AF34257C4FE2EB5B31 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 507DAE976B574C1F38BFBC71;
+			remoteInfo = DatesWidget;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B39BA6798D9AC8C43ACCEBB4 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DD0C747E2D894042A7787D5C /* DatesWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		08C60F755F98B300781A1E6D /* DatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesUITests.swift; sourceTree = "<group>"; };
 		0F4DFFAE94109E39B2D2DA70 /* FakeNotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeNotificationCenter.swift; sourceTree = "<group>"; };
 		1500FA33C3B6720B8E26D377 /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
+		2519F07B42CDF26B754B2FC9 /* DatesWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesWidgetBundle.swift; sourceTree = "<group>"; };
 		266AB6DA98285D348FE0AFA2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		3525B005E7629577B567E7A0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		378C969B90DA71665CC1CDF2 /* EventListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListView.swift; sourceTree = "<group>"; };
 		3807D7BB70F95701291B0922 /* CSVExportDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVExportDocument.swift; sourceTree = "<group>"; };
 		383B2215B735B97CFA835DE3 /* EventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStore.swift; sourceTree = "<group>"; };
@@ -75,6 +102,8 @@
 		5F1A67EA2D62F7747025E406 /* Dates.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Dates.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FA524433B51280F2C5AFEB3 /* EventRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRowView.swift; sourceTree = "<group>"; };
 		6883CAA64BF9CD620CA8ADF3 /* ImportFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportFlow.swift; sourceTree = "<group>"; };
+		6E205A5ADC7B1806DB6B00BA /* UpcomingDatesWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingDatesWidget.swift; sourceTree = "<group>"; };
+		6F7D44D2EBC1A326519C1BA1 /* ContactsImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsImporter.swift; sourceTree = "<group>"; };
 		706D92DBB542F573FFACE2C2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		736EFEF6DAD19404AE6DFA65 /* BackgroundRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRefresh.swift; sourceTree = "<group>"; };
 		8021A46696C18EAD6312816F /* DatesKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DatesKit; path = DatesKit; sourceTree = SOURCE_ROOT; };
@@ -82,6 +111,7 @@
 		8443F65B8A0F229E90343E11 /* Dates.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Dates.entitlements; sourceTree = "<group>"; };
 		8840C170B054BF9F9CA0E999 /* DateEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateEvent.swift; sourceTree = "<group>"; };
 		898D11D63A3AC4231D69EB86 /* ImportReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportReviewView.swift; sourceTree = "<group>"; };
+		999B0150F61EBD1FBEBD3F62 /* DatesWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = DatesWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A8A9D4C1C8E1FB610053A3A /* GroupsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupsView.swift; sourceTree = "<group>"; };
 		A8E14883C6117BB8E17FE664 /* SchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerTests.swift; sourceTree = "<group>"; };
 		AB7B95130E8E7188F06B6A79 /* EventGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventGroup.swift; sourceTree = "<group>"; };
@@ -91,8 +121,8 @@
 		B36AEC3D70DCCF826EB5157C /* DayTicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayTicker.swift; sourceTree = "<group>"; };
 		BA8A34C4FB5507EAA2008BD1 /* DatesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesApp.swift; sourceTree = "<group>"; };
 		C65DB6D3122105A77A07834D /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
+		C70873F25F348FB19F9DFB6E /* DatesWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DatesWidget.entitlements; sourceTree = "<group>"; };
 		D5D5C0D6E3B6B61332F0242D /* EventFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormView.swift; sourceTree = "<group>"; };
-		DB4487CBEE47F5A691C1DDA7 /* CalendarImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarImporter.swift; sourceTree = "<group>"; };
 		E08B5CF47408EFECFCE16E58 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E347E64DA97FE82B25AED678 /* DatesTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DatesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6A880F8C947B714622BB93E /* AppSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsTests.swift; sourceTree = "<group>"; };
@@ -108,6 +138,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				8534090D1342EC9387CE2911 /* DatesKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B4D1026AB5E708D6D158E70 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A66BABC650158AE8717D42F /* DatesKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +178,17 @@
 				C65DB6D3122105A77A07834D /* NotificationScheduler.swift */,
 			);
 			path = Notifications;
+			sourceTree = "<group>";
+		};
+		4F4E60C9EFDE2BD38461C0EB /* DatesWidget */ = {
+			isa = PBXGroup;
+			children = (
+				C70873F25F348FB19F9DFB6E /* DatesWidget.entitlements */,
+				2519F07B42CDF26B754B2FC9 /* DatesWidgetBundle.swift */,
+				3525B005E7629577B567E7A0 /* Info.plist */,
+				6E205A5ADC7B1806DB6B00BA /* UpcomingDatesWidget.swift */,
+			);
+			path = DatesWidget;
 			sourceTree = "<group>";
 		};
 		544C0F580562120C73BE1C56 /* Views */ = {
@@ -185,6 +234,7 @@
 				5F1A67EA2D62F7747025E406 /* Dates.app */,
 				E347E64DA97FE82B25AED678 /* DatesTests.xctest */,
 				5ED87C418164B52BDBC856D7 /* DatesUITests.xctest */,
+				999B0150F61EBD1FBEBD3F62 /* DatesWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -200,7 +250,7 @@
 		B7AFD718EA2307FCF036C688 /* Import */ = {
 			isa = PBXGroup;
 			children = (
-				DB4487CBEE47F5A691C1DDA7 /* CalendarImporter.swift */,
+				6F7D44D2EBC1A326519C1BA1 /* ContactsImporter.swift */,
 				3807D7BB70F95701291B0922 /* CSVExportDocument.swift */,
 				6883CAA64BF9CD620CA8ADF3 /* ImportFlow.swift */,
 			);
@@ -239,6 +289,7 @@
 				F1AFD38869B966887816F398 /* Dates */,
 				BFF243895F9A1BC859FBACA2 /* DatesTests */,
 				662097F3AC8606BF325AC022 /* DatesUITests */,
+				4F4E60C9EFDE2BD38461C0EB /* DatesWidget */,
 				A8448B71834FC28A4AECF77D /* Packages */,
 				922D264649B499FD3D44967E /* Products */,
 			);
@@ -276,6 +327,25 @@
 			productReference = 5ED87C418164B52BDBC856D7 /* DatesUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		507DAE976B574C1F38BFBC71 /* DatesWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9920BFC5D943D9E04642FDF8 /* Build configuration list for PBXNativeTarget "DatesWidget" */;
+			buildPhases = (
+				492760621693FCCD3E20622A /* Sources */,
+				8B4D1026AB5E708D6D158E70 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DatesWidget;
+			packageProductDependencies = (
+				2A76D08BB6EC10EBE0C58A80 /* DatesKit */,
+			);
+			productName = DatesWidget;
+			productReference = 999B0150F61EBD1FBEBD3F62 /* DatesWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		5E7FB5F6020CA994E39400E0 /* DatesTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D8557B94E00830BDC2EDF513 /* Build configuration list for PBXNativeTarget "DatesTests" */;
@@ -303,10 +373,12 @@
 				95EA2522794D01A002DABF74 /* Sources */,
 				8A43F6FA76BD2B14E43AFD36 /* Resources */,
 				401B4C08A1E785855B5FB63F /* Frameworks */,
+				B39BA6798D9AC8C43ACCEBB4 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				EFF5E63BD2C7E9FF44905EF7 /* PBXTargetDependency */,
 			);
 			name = Dates;
 			packageProductDependencies = (
@@ -328,6 +400,10 @@
 					1F2F1AD88DD1482C28FB56A8 = {
 						DevelopmentTeam = 222HG57693;
 						TestTargetID = 6953A73F8ACA19FB8FF0FD02;
+					};
+					507DAE976B574C1F38BFBC71 = {
+						DevelopmentTeam = 222HG57693;
+						ProvisioningStyle = Automatic;
 					};
 					5E7FB5F6020CA994E39400E0 = {
 						DevelopmentTeam = 222HG57693;
@@ -356,6 +432,7 @@
 			projectRoot = "";
 			targets = (
 				6953A73F8ACA19FB8FF0FD02 /* Dates */,
+				507DAE976B574C1F38BFBC71 /* DatesWidget */,
 				5E7FB5F6020CA994E39400E0 /* DatesTests */,
 				1F2F1AD88DD1482C28FB56A8 /* DatesUITests */,
 			);
@@ -375,6 +452,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		492760621693FCCD3E20622A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F7A17BCD7A95BE6DD5AD39C4 /* DatesWidgetBundle.swift in Sources */,
+				B55D728316C15A57F2688988 /* UpcomingDatesWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		65F93BCC261CA75248126662 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -402,7 +488,7 @@
 				1DBD6DADE3D3732E55C615A4 /* AppSettings.swift in Sources */,
 				2B5EF73289617E44D967AB9E /* BackgroundRefresh.swift in Sources */,
 				9BE2AF89AE84EE37169831DB /* CSVExportDocument.swift in Sources */,
-				AE62C02B0B8159053B1025F9 /* CalendarImporter.swift in Sources */,
+				B4E12DC995F3FC59435FA800 /* ContactsImporter.swift in Sources */,
 				9BE4C19BA167AAE4B7A23EB0 /* DateEvent.swift in Sources */,
 				10AEFAD0C6E210E840E6CA77 /* DatesApp.swift in Sources */,
 				27D4459E0486367C7022F07A /* DatesModelContainer.swift in Sources */,
@@ -439,9 +525,35 @@
 			target = 6953A73F8ACA19FB8FF0FD02 /* Dates */;
 			targetProxy = C2F7F40A2E440E6B82E33A07 /* PBXContainerItemProxy */;
 		};
+		EFF5E63BD2C7E9FF44905EF7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 507DAE976B574C1F38BFBC71 /* DatesWidget */;
+			targetProxy = F5C5680331EA2CEF1A4132EC /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		3185B1323D22BD13C1944974 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DatesWidget/DatesWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = DatesWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moorelabs.Dates.DatesWidget;
+				PRODUCT_NAME = DatesWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 		3D2DFFB6EAE9FFC5ED2F103A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -478,6 +590,27 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.moorelabs.Dates;
 				PRODUCT_NAME = Dates;
 				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		50BBB2E41EA9E22D01F51C30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DatesWidget/DatesWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = DatesWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moorelabs.Dates.DatesWidget;
+				PRODUCT_NAME = DatesWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -702,6 +835,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
+		9920BFC5D943D9E04642FDF8 /* Build configuration list for PBXNativeTarget "DatesWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				50BBB2E41EA9E22D01F51C30 /* Debug */,
+				3185B1323D22BD13C1944974 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		D8557B94E00830BDC2EDF513 /* Build configuration list for PBXNativeTarget "DatesTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -730,6 +872,10 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2A76D08BB6EC10EBE0C58A80 /* DatesKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DatesKit;
+		};
 		313F5E16D1444A8487803910 /* DatesKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = DatesKit;

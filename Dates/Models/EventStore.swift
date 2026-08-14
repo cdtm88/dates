@@ -2,6 +2,7 @@ import Foundation
 import OSLog
 import SwiftData
 import Observation
+import WidgetKit
 import DatesKit
 
 enum EventStoreError: LocalizedError {
@@ -230,6 +231,12 @@ final class EventStore {
     /// global notification time changes (NOTIF-09).
     func rescheduleAll(now: Date = Date(), calendar: Calendar = .current) async {
         let snapshots = snapshots()
+
+        // The widget rides the same trigger set as the queue: every mutation, foreground,
+        // and time change lands here, so the shared file can never go stale on its own.
+        WidgetBridge.write(snapshots.map(WidgetEvent.init))
+        WidgetCenter.shared.reloadAllTimelines()
+
         let outcome = await scheduler.reschedule(
             snapshots: snapshots,
             notificationTime: settings.notificationTime,

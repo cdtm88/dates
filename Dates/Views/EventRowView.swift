@@ -24,7 +24,18 @@ struct EventRowView: View {
                         .lineLimit(1)
                     if let badge = EventFormatting.yearsBadge(event, now: now, calendar: calendar) {
                         Text("·")
-                        Text(badge)
+                        if event.milestoneYears(from: now, calendar: calendar) != nil {
+                            // A milestone year gets the accent and a spark, nothing louder:
+                            // the row stays scannable and ordinary years stay quiet.
+                            HStack(spacing: 3) {
+                                Image(systemName: "sparkles")
+                                Text(badge)
+                            }
+                            .fontWeight(.medium)
+                            .foregroundStyle(Color.accentColor)
+                        } else {
+                            Text(badge)
+                        }
                     }
                 }
                 .font(.footnote)

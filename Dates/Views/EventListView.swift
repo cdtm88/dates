@@ -64,7 +64,7 @@ struct EventListView: View {
             EmptyStateView(
                 onAddManually: { activeSheet = .addEvent },
                 importAvailable: true,
-                onImportCalendar: { importFlow.fetchCalendarCandidates(now: now) },
+                onImportContacts: { importFlow.fetchContactCandidates(now: now) },
                 onImportCSV: { importFlow.isPickingCSV = true }
             )
         } else if rows.isEmpty {
@@ -207,11 +207,11 @@ struct EventListView: View {
                 Divider()
 
                 Button {
-                    importFlow.fetchCalendarCandidates(now: now)
+                    importFlow.fetchContactCandidates(now: now)
                 } label: {
-                    Label("Import from Calendar", systemImage: "calendar")
+                    Label("Import from Contacts", systemImage: "person.crop.circle")
                 }
-                .disabled(importFlow.isFetchingCalendar)
+                .disabled(importFlow.isFetchingContacts)
 
                 Button {
                     importFlow.isPickingCSV = true

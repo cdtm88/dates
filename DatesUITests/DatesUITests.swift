@@ -29,7 +29,7 @@ final class DatesUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Add a date"].firstMatch.isEnabled)
 
         // All three entry routes are live now that Phase 05 has landed (LIST-06).
-        XCTAssertTrue(app.buttons["Import from Calendar"].isEnabled)
+        XCTAssertTrue(app.buttons["Import from Contacts"].isEnabled)
         XCTAssertTrue(app.buttons["Import a CSV"].isEnabled)
     }
 

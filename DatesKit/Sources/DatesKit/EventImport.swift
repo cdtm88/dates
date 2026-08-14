@@ -27,7 +27,9 @@ public struct ImportCandidate: Hashable, Sendable, Identifiable {
     /// Case- and diacritic-insensitive identity used for duplicate detection: the same
     /// person on the same day is the same date, whether or not one side knows the year.
     public var duplicateKey: String {
-        let folded = name.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+        // No locale: folding must give the same answer on every device, or the same
+        // person could be a duplicate on one phone and fresh on another that syncs.
+        let folded = name.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
         return "\(folded)|\(date.month)|\(date.day)"
     }
 }
@@ -177,7 +179,8 @@ public enum EventCSV {
             return .failure(.wrongFieldCount(expected: headerWidth, found: row.count))
         }
 
-        guard let rawName = field(nameColumn), EventValidation.isValidName(rawName) else {
+        guard let rawName = field(nameColumn).map(restoredFromSpreadsheet),
+              EventValidation.isValidName(rawName) else {
             return .failure(.invalidName)
         }
 
@@ -228,8 +231,31 @@ public enum EventCSV {
             name: EventValidation.normalisedName(rawName),
             type: type,
             date: date,
-            groupName: field(groupColumn)
+            groupName: field(groupColumn).map(restoredFromSpreadsheet)
         ))
+    }
+
+    // MARK: - Spreadsheet safety
+
+    /// Spreadsheets treat a cell starting with one of these as a formula, so a name like
+    /// "=1+1" in an exported file would execute when opened in Excel (CSV injection).
+    private static let formulaStarters: Set<Character> = ["=", "+", "-", "@", "\t"]
+
+    /// Defuses a formula-shaped field with a leading apostrophe — the convention Excel and
+    /// Sheets themselves use for "this cell is text". Only the free-text columns (Name,
+    /// Group) go through this; numeric columns never start with a formula character.
+    private static func defusedForSpreadsheet(_ field: String) -> String {
+        guard let first = field.first, formulaStarters.contains(first) else { return field }
+        return "'" + field
+    }
+
+    /// Strips the apostrophe `defusedForSpreadsheet` added, so an exported file still
+    /// re-imports as pure duplicates.
+    private static func restoredFromSpreadsheet(_ field: String) -> String {
+        guard field.first == "'",
+              let second = field.dropFirst().first,
+              formulaStarters.contains(second) else { return field }
+        return String(field.dropFirst())
     }
 
     // MARK: - Encoding
@@ -240,12 +266,12 @@ public enum EventCSV {
         var rows: [[String]] = [allColumns]
         for snapshot in snapshots {
             rows.append([
-                snapshot.name,
+                defusedForSpreadsheet(snapshot.name),
                 snapshot.type.rawValue,
                 String(snapshot.date.month),
                 String(snapshot.date.day),
                 snapshot.date.year.map(String.init) ?? "",
-                snapshot.groupName,
+                defusedForSpreadsheet(snapshot.groupName),
             ])
         }
         return CSVTable.encode(rows)
