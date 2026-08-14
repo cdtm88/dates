@@ -31,6 +31,12 @@ struct RootView: View {
             // event form with no groups to choose from (GROUP-01).
             _ = try? DatesModelContainer.seedIfNeeded(modelContext)
 
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--demo") {
+                try? DatesModelContainer.seedDemoDataIfEmpty(modelContext)
+            }
+            #endif
+
             let store = EventStore(context: modelContext, settings: settings)
             self.store = store
 

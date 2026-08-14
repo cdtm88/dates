@@ -69,6 +69,50 @@ enum DatesModelContainer {
         return try ungroupedGroup(context)
     }
 
+    #if DEBUG
+    /// Sample dates for simulator screenshots (`--demo`, Debug builds only). Inserted
+    /// directly rather than through `EventStore` because the store path requests
+    /// notification permission, and the system alert would sit over the screenshot.
+    /// Days-ahead offsets are relative so the list always looks current, spanning enough
+    /// months to show the section headers, including one that wraps into next year.
+    @MainActor
+    static func seedDemoDataIfEmpty(_ context: ModelContext, now: Date = Date()) throws {
+        guard try context.fetch(FetchDescriptor<DateEvent>()).isEmpty else { return }
+        let groups = try context.fetch(FetchDescriptor<EventGroup>())
+
+        let calendar = Calendar.current
+        func annual(daysAhead: Int, turning: Int?) -> AnnualDate? {
+            guard let occurrence = calendar.date(byAdding: .day, value: daysAhead, to: now) else { return nil }
+            let components = calendar.dateComponents([.year, .month, .day], from: occurrence)
+            guard let year = components.year, let month = components.month, let day = components.day else { return nil }
+            return AnnualDate(month: month, day: day, year: turning.map { year - $0 })
+        }
+
+        let samples: [(name: String, daysAhead: Int, turning: Int?, type: EventType, group: String)] = [
+            ("Mum", 2, 58, .birthday, "Close family"),
+            ("Priya & Sam", 9, 12, .anniversary, "Friends"),
+            ("Grandpa Joe", 16, 81, .birthday, "Close family"),
+            ("Lena", 24, nil, .birthday, "Friends"),
+            ("Aunt Carol", 38, 62, .birthday, "Wider family"),
+            ("Marco", 47, nil, .birthday, "Work"),
+            ("Our anniversary", 63, 6, .anniversary, "Close family"),
+            ("Dad", 90, 61, .birthday, "Close family"),
+            ("Nadia", 132, 29, .birthday, "Friends"),
+            ("Tom", 200, nil, .birthday, "Work"),
+        ]
+        for sample in samples {
+            guard let date = annual(daysAhead: sample.daysAhead, turning: sample.turning) else { continue }
+            context.insert(DateEvent(
+                name: sample.name,
+                date: date,
+                type: sample.type,
+                group: groups.first { $0.name == sample.group }
+            ))
+        }
+        try context.save()
+    }
+    #endif
+
     @MainActor
     static func ungroupedGroup(_ context: ModelContext) throws -> EventGroup {
         var descriptor = FetchDescriptor<EventGroup>(predicate: #Predicate { $0.isUngrouped })

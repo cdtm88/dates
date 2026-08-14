@@ -29,6 +29,15 @@ struct DatesApp: App {
         }
         container = Self.makeBestContainer(isUITesting: isUITesting)
 
+        #if DEBUG
+        // Screenshot runs pass `--demo` (with `--uitest` for the throwaway store): the
+        // appearance follows the simulator instead of the Light first-launch default,
+        // so one run photographs both modes.
+        if ProcessInfo.processInfo.arguments.contains("--demo") {
+            settings.appearance = .system
+        }
+        #endif
+
         // Every stored property is initialised by this point, which `self` needs.
         router.register()
     }
