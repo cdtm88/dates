@@ -6,15 +6,27 @@ import DatesKit
 enum DatesModelContainer {
     static let schema = Schema([DateEvent.self, EventGroup.self])
 
-    /// The on-disk container.
+    /// The private-database container CloudKit syncs into (Phase 06, SYNC).
+    static let cloudKitContainerIdentifier = "iCloud.com.cdtm88.Dates"
+
+    /// The on-disk container, CloudKit-backed by default (Phase 06).
     ///
-    /// Phase 06 turns CloudKit on here by passing `cloudKitDatabase: .private(...)`. The
-    /// schema is already CloudKit-shaped — every attribute has a default and every
-    /// relationship is optional — so that change needs no migration (D-03, D-04).
-    static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)
-        let container = try ModelContainer(for: schema, configurations: [configuration])
-        return container
+    /// The schema was kept CloudKit-shaped from Phase 01 — every attribute has a default
+    /// and every relationship is optional — so turning sync on is this flag plus the
+    /// entitlement, with no migration (D-03, D-04). Sync is per-store, not per-record:
+    /// with no iCloud account the container still works and everything stays local.
+    ///
+    /// `syncsWithCloudKit: false` is for tests and the `--uitest` launch, where the
+    /// entitlement may be absent and a CloudKit-backed init would throw.
+    static func makeContainer(inMemory: Bool = false, syncsWithCloudKit: Bool = true) throws -> ModelContainer {
+        let cloudKit: ModelConfiguration.CloudKitDatabase =
+            (syncsWithCloudKit && !inMemory) ? .private(cloudKitContainerIdentifier) : .none
+        let configuration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: inMemory,
+            cloudKitDatabase: cloudKit
+        )
+        return try ModelContainer(for: schema, configurations: [configuration])
     }
 
     /// Creates the seeded groups on first launch and guarantees Ungrouped exists (GROUP-01).

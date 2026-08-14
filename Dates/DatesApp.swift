@@ -27,21 +27,37 @@ struct DatesApp: App {
         } else {
             settings = AppSettings()
         }
-        do {
-            container = try DatesModelContainer.makeContainer(inMemory: isUITesting)
-        } catch {
-            // Falling back to memory keeps the app usable for the session rather than
-            // crashing on launch. The user sees their data missing, which is bad, but a
-            // hard crash on every launch is worse and unrecoverable without a reinstall.
-            do {
-                container = try DatesModelContainer.makeContainer(inMemory: true)
-            } catch {
-                fatalError("Could not create a model container: \(error)")
-            }
-        }
+        container = Self.makeBestContainer(isUITesting: isUITesting)
 
         // Every stored property is initialised by this point, which `self` needs.
         router.register()
+    }
+
+    /// CloudKit-backed first (Phase 06); local-only when that init throws — typically a
+    /// build without the iCloud entitlement — because losing sync is recoverable and
+    /// losing the on-disk data is not. Memory is the last resort: bad, but better than
+    /// crashing on every launch, which is unrecoverable without a reinstall.
+    private static func makeBestContainer(isUITesting: Bool) -> ModelContainer {
+        if isUITesting {
+            // Empty in-memory store, no CloudKit: every UI test run starts clean, and the
+            // unsigned CI build has no entitlement to satisfy a CloudKit-backed init.
+            if let container = try? DatesModelContainer.makeContainer(inMemory: true, syncsWithCloudKit: false) {
+                return container
+            }
+        }
+        do {
+            return try DatesModelContainer.makeContainer()
+        } catch {
+            do {
+                return try DatesModelContainer.makeContainer(syncsWithCloudKit: false)
+            } catch {
+                do {
+                    return try DatesModelContainer.makeContainer(inMemory: true, syncsWithCloudKit: false)
+                } catch {
+                    fatalError("Could not create a model container: \(error)")
+                }
+            }
+        }
     }
 
     var body: some Scene {

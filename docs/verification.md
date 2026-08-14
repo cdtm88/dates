@@ -1,4 +1,4 @@
-# Requirement verification — phases 01 to 05 and 07
+# Requirement verification — phases 01 to 07
 
 Three levels of evidence appear below. Both test suites run on every pull request:
 `DatesKit` on a Linux container, `DatesTests` on a macOS runner against an iPhone simulator.
@@ -76,6 +76,16 @@ is the one referenced by id in the handover notes.
 | An exported file re-imports as pure duplicates | Tested (Linux + Xcode) | `testExportedEventsReimportAsPureDuplicates`, and again through a real store in `ImportTests` |
 | Calendar import offers only Birthdays-calendar entries and yearly-recurring events | Implemented | `CalendarImporter` — EventKit cannot run in a unit test; needs a simulator with calendar data |
 | Nothing is saved before the user reviews what will be added, skipped and refused | Implemented | `ImportReviewView` |
+
+## Phase 06 — iCloud sync
+
+| Behaviour | Status | Where |
+|---|---|---|
+| The store syncs through the CloudKit private database | Implemented | `DatesModelContainer.makeContainer` passes `.private("iCloud.com.cdtm88.Dates")`; entitlement in `project.yml` |
+| No iCloud account degrades to local-only, app fully usable | Implemented | SwiftData pauses sync without an account; Settings shows On/Off from `ubiquityIdentityToken` |
+| A build without the entitlement does not crash | Implemented | `DatesApp.makeBestContainer` retries local-only, then in-memory; `--uitest` and unit tests opt out of CloudKit entirely |
+| Schema stays CloudKit-compatible | Tested (Xcode) | The whole `DatesTests` suite runs against the same schema; defaults and optional relationships enforced since Phase 01 (D-03, D-04) |
+| Two devices converge | Not verified | Needs two signed-in devices; manual script in `docs/xcode-handover.md` |
 
 ## Phase 07 — appearance
 
