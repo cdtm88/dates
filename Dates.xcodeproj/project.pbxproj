@@ -39,6 +39,7 @@
 		C242406DB2CB069F13A2A146 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65DB6D3122105A77A07834D /* NotificationScheduler.swift */; };
 		DE6B87472FC274EE5D978285 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8163408D7D8FBA6170D57B /* PersistenceTests.swift */; };
 		DF9892E72A4608EF34789288 /* EventRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA524433B51280F2C5AFEB3 /* EventRowView.swift */; };
+		EA1AEBB2D621303683F8C42B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 45DCD2F4C7F98BB3C3336399 /* PrivacyInfo.xcprivacy */; };
 		F4E465320C909E230564FFBC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706D92DBB542F573FFACE2C2 /* RootView.swift */; };
 /* End PBXBuildFile section */
 
@@ -67,15 +68,17 @@
 		378C969B90DA71665CC1CDF2 /* EventListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListView.swift; sourceTree = "<group>"; };
 		3807D7BB70F95701291B0922 /* CSVExportDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVExportDocument.swift; sourceTree = "<group>"; };
 		383B2215B735B97CFA835DE3 /* EventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStore.swift; sourceTree = "<group>"; };
+		45DCD2F4C7F98BB3C3336399 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		4EB04B02B4F0096D091E3120 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		500FDC14800B53C54798EFAB /* NotificationRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationRouter.swift; sourceTree = "<group>"; };
-		5ED87C418164B52BDBC856D7 /* DatesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DatesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5F1A67EA2D62F7747025E406 /* Dates.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dates.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5ED87C418164B52BDBC856D7 /* DatesUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DatesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5F1A67EA2D62F7747025E406 /* Dates.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Dates.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FA524433B51280F2C5AFEB3 /* EventRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRowView.swift; sourceTree = "<group>"; };
 		6883CAA64BF9CD620CA8ADF3 /* ImportFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportFlow.swift; sourceTree = "<group>"; };
 		706D92DBB542F573FFACE2C2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		736EFEF6DAD19404AE6DFA65 /* BackgroundRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRefresh.swift; sourceTree = "<group>"; };
-		8021A46696C18EAD6312816F /* DatesKit */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DatesKit; sourceTree = SOURCE_ROOT; };
+		8021A46696C18EAD6312816F /* DatesKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DatesKit; path = DatesKit; sourceTree = SOURCE_ROOT; };
+		8230622689EBFB80E6F67E46 /* DatesDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DatesDebug.entitlements; sourceTree = "<group>"; };
 		8443F65B8A0F229E90343E11 /* Dates.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Dates.entitlements; sourceTree = "<group>"; };
 		8840C170B054BF9F9CA0E999 /* DateEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateEvent.swift; sourceTree = "<group>"; };
 		898D11D63A3AC4231D69EB86 /* ImportReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportReviewView.swift; sourceTree = "<group>"; };
@@ -91,7 +94,7 @@
 		D5D5C0D6E3B6B61332F0242D /* EventFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormView.swift; sourceTree = "<group>"; };
 		DB4487CBEE47F5A691C1DDA7 /* CalendarImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarImporter.swift; sourceTree = "<group>"; };
 		E08B5CF47408EFECFCE16E58 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E347E64DA97FE82B25AED678 /* DatesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DatesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E347E64DA97FE82B25AED678 /* DatesTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DatesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6A880F8C947B714622BB93E /* AppSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsTests.swift; sourceTree = "<group>"; };
 		EA83EF3F1E7DCADF4CEF742E /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		EEBE5C59C6B427D8090E9FA4 /* DatesModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesModelContainer.swift; sourceTree = "<group>"; };
@@ -161,7 +164,9 @@
 			children = (
 				E08B5CF47408EFECFCE16E58 /* Assets.xcassets */,
 				8443F65B8A0F229E90343E11 /* Dates.entitlements */,
+				8230622689EBFB80E6F67E46 /* DatesDebug.entitlements */,
 				266AB6DA98285D348FE0AFA2 /* Info.plist */,
+				45DCD2F4C7F98BB3C3336399 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -318,7 +323,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2660;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					1F2F1AD88DD1482C28FB56A8 = {
 						DevelopmentTeam = 222HG57693;
@@ -363,6 +368,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B097D2BE5368F9623438367A /* Assets.xcassets in Resources */,
+				EA1AEBB2D621303683F8C42B /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -549,14 +555,13 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = Dates/Resources/Dates.entitlements;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 222HG57693;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -609,14 +614,13 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = Dates/Resources/DatesDebug.entitlements;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 222HG57693;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
