@@ -123,9 +123,10 @@ The SwiftData store is CloudKit-backed (`.private("iCloud.com.cdtm88.Dates")`). 
 was kept CloudKit-shaped from Phase 01 — defaults on every attribute, optional
 relationships — so this was the entitlement plus one flag, with no migration. Without an
 iCloud account everything stays local and the app is unaffected; Settings shows which of
-the two states applies. A build without the entitlement (CI signs with
-`CODE_SIGNING_ALLOWED=NO`, and `--uitest` opts out) falls back to the same local-only
-store rather than failing.
+the two states applies. The CloudKit attempt is gated on the account token: a
+CloudKit-backed container init traps — it does not throw — in a process without the
+iCloud entitlement, which is what an unsigned CI build is, and a process with no account
+has nothing to sync anyway. Tests and `--uitest` opt out of CloudKit entirely.
 
 What automation cannot verify: actual multi-device convergence, which needs two signed-in
 devices.

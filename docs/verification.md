@@ -83,7 +83,7 @@ is the one referenced by id in the handover notes.
 |---|---|---|
 | The store syncs through the CloudKit private database | Implemented | `DatesModelContainer.makeContainer` passes `.private("iCloud.com.cdtm88.Dates")`; entitlement in `project.yml` |
 | No iCloud account degrades to local-only, app fully usable | Implemented | SwiftData pauses sync without an account; Settings shows On/Off from `ubiquityIdentityToken` |
-| A build without the entitlement does not crash | Implemented | `DatesApp.makeBestContainer` retries local-only, then in-memory; `--uitest` and unit tests opt out of CloudKit entirely |
+| A build without the entitlement does not crash | Implemented | A CloudKit-backed init traps rather than throwing without the entitlement, so `DatesApp.makeBestContainer` attempts CloudKit only when the device reports an iCloud account (an unsigned process never does); `--uitest` and unit tests opt out entirely |
 | Schema stays CloudKit-compatible | Tested (Xcode) | The whole `DatesTests` suite runs against the same schema; defaults and optional relationships enforced since Phase 01 (D-03, D-04) |
 | Two devices converge | Not verified | Needs two signed-in devices; manual script in `docs/xcode-handover.md` |
 

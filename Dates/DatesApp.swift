@@ -33,29 +33,33 @@ struct DatesApp: App {
         router.register()
     }
 
-    /// CloudKit-backed first (Phase 06); local-only when that init throws — typically a
-    /// build without the iCloud entitlement — because losing sync is recoverable and
-    /// losing the on-disk data is not. Memory is the last resort: bad, but better than
-    /// crashing on every launch, which is unrecoverable without a reinstall.
+    /// CloudKit-backed when there is an account to sync with; local-only otherwise.
+    ///
+    /// The account token gates the CloudKit attempt because a CloudKit-backed init TRAPS —
+    /// it does not throw — when the process lacks the iCloud entitlement, which is exactly
+    /// what an unsigned CI build running as the unit-test host is. No account means nothing
+    /// to sync anyway, and an unsigned process can never report one, so the gate is safe on
+    /// both sides; a signed-in device picks sync up on the next cold launch. Memory is the
+    /// last resort: bad, but better than crashing on every launch, which is unrecoverable
+    /// without a reinstall.
     private static func makeBestContainer(isUITesting: Bool) -> ModelContainer {
         if isUITesting {
-            // Empty in-memory store, no CloudKit: every UI test run starts clean, and the
-            // unsigned CI build has no entitlement to satisfy a CloudKit-backed init.
+            // Empty in-memory store, no CloudKit: every UI test run starts clean.
             if let container = try? DatesModelContainer.makeContainer(inMemory: true, syncsWithCloudKit: false) {
                 return container
             }
         }
+        let hasICloudAccount = FileManager.default.ubiquityIdentityToken != nil
+        if hasICloudAccount, let container = try? DatesModelContainer.makeContainer() {
+            return container
+        }
         do {
-            return try DatesModelContainer.makeContainer()
+            return try DatesModelContainer.makeContainer(syncsWithCloudKit: false)
         } catch {
             do {
-                return try DatesModelContainer.makeContainer(syncsWithCloudKit: false)
+                return try DatesModelContainer.makeContainer(inMemory: true, syncsWithCloudKit: false)
             } catch {
-                do {
-                    return try DatesModelContainer.makeContainer(inMemory: true, syncsWithCloudKit: false)
-                } catch {
-                    fatalError("Could not create a model container: \(error)")
-                }
+                fatalError("Could not create a model container: \(error)")
             }
         }
     }
