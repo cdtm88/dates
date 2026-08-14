@@ -80,16 +80,32 @@ struct SettingsView: View {
                     Text("Importing shows a review first and skips the dates you already have. Export writes a file readable by any spreadsheet.")
                 }
 
-                // The wordmark is decorative; the version below it is the useful part.
+                Section {
+                    LabeledContent("iCloud sync", value: hasICloudAccount ? "On" : "Off")
+                } footer: {
+                    Text(hasICloudAccount
+                         ? "Your dates sync privately through iCloud to your other devices."
+                         : "Sign in to iCloud in the Settings app to sync your dates across your devices. Everything stays on this device until then.")
+                }
+
+                // The lockup is composed here rather than using the rendered wordmark PNGs,
+                // whose baked-in backgrounds sit as an opaque slab on the grouped form
+                // background. The mark PNG is transparent and the text takes the label
+                // colour, so this blends in both appearances.
                 Section {
                     EmptyView()
                 } footer: {
                     VStack(spacing: 8) {
-                        Image("Wordmark")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 28)
-                            .accessibilityHidden(true)
+                        HStack(spacing: 8) {
+                            Image("BrandMark")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 26, height: 26)
+                            Text("Dates")
+                                .font(.system(size: 21, weight: .bold))
+                                .foregroundStyle(.primary)
+                        }
+                        .accessibilityHidden(true)
                         if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
                             Text("Version \(version)")
                         }
@@ -170,6 +186,13 @@ struct SettingsView: View {
             return base + " Your date has reminders scheduled through \(through)."
         }
         return base + " All \(summary.totalEventCount) dates have reminders scheduled through \(through)."
+    }
+
+    /// Whether the device has an iCloud account at all — the user-fixable half of sync.
+    /// The store handles the rest (SwiftData pauses sync without an account and catches
+    /// up when one appears), so this row is a status hint, not a switch.
+    private var hasICloudAccount: Bool {
+        FileManager.default.ubiquityIdentityToken != nil
     }
 
     private func refreshDiagnostics() async {

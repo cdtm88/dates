@@ -2,10 +2,11 @@
 
 Birthday, anniversary and key-date reminders for iOS. Native, offline-first, no backend.
 
-This repository implements **phases 01 to 05 and 07 of the PRD**: the data model, groups and
+This repository implements **phases 01 to 07 of the PRD**: the data model, groups and
 offsets, the chronological list and detail views, the rolling-window notification engine
 (Milestone 1, the first TestFlight-worthy build), calendar and CSV import/export (Phase 05),
-and the Light/Dark appearance setting with Light as the first-launch default (Phase 07).
+private-database iCloud sync of the SwiftData store (Phase 06), and the Light/Dark
+appearance setting with Light as the first-launch default (Phase 07).
 
 ## Layout
 
@@ -116,6 +117,21 @@ save and a single notification reschedule, and re-importing the same file adds n
   year is not a birth year, and a wrong age is worse than none. Requires the iOS 17
   full-access calendar permission (EventKit has no read-only tier).
 
+## iCloud sync (Phase 06)
+
+The SwiftData store is CloudKit-backed (`.private("iCloud.com.cdtm88.Dates")`). The schema
+was kept CloudKit-shaped from Phase 01 — defaults on every attribute, optional
+relationships — so this was the entitlement plus one flag, with no migration. Without an
+iCloud account everything stays local and the app is unaffected; Settings shows which of
+the two states applies. The CloudKit attempt is gated on the account token: a
+CloudKit-backed container init traps — it does not throw — in a process without the
+iCloud entitlement, which is what an unsigned CI build is, and a process with no account
+has nothing to sync anyway. Tests and `--uitest` opt out of CloudKit entirely.
+
+What automation cannot verify: actual multi-device convergence, which needs two signed-in
+devices.
+
 ## Not yet built
 
-Phases 06 and 08 are untouched: iCloud sync and release readiness.
+Phase 08 (release readiness) is untouched, and the app is still named "Dates" with bundle
+id `com.cdtm88.Dates` — the PRD flags the name as needed before Phase 08.

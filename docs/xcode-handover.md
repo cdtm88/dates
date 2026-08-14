@@ -1,6 +1,6 @@
 # Handover: picking this up in Xcode
 
-You are inheriting phases 01 to 05 of the Dates PRD. Phases 01 to 04 (Milestone 1) were
+You are inheriting phases 01 to 07 of the Dates PRD. Phases 01 to 04 (Milestone 1) were
 built first; Phase 05 — calendar and CSV import/export — landed after, developed in Xcode
 with all suites run on a simulator. Some counts below predate Phase 05; the README has the
 current ones.
@@ -130,16 +130,24 @@ schedules at its own discretion and may never run when you want it to.
 
 ## What is deliberately absent
 
-- **Phases 06 and 08.** No CloudKit, no release work.
+- **Phase 08.** No release work, and the app name/bundle id decision is still open.
 - **PERF-01 and PERF-02 are unverified** — device measurements on an iPhone 12 or newer. The
   timings in the test suites guard the algorithm, not the device figure.
+- **Multi-device sync convergence is unverified** — Phase 06 is on (see below), but proving
+  two devices converge needs two signed-in devices or simulators. Manual script: sign both
+  into the same iCloud account, add a date on one, wait, foreground the other, check the
+  list and Settings queue read-out both update. Also worth checking: two devices seeding on
+  first launch before their first sync can each create the five groups — the app tolerates
+  duplicates (deletes move events to *an* Ungrouped), but a dedupe pass is future work.
 
 ## Groundwork already in place
 
-- **Phase 06 (CloudKit).** The schema is already CloudKit-shaped: every attribute has a default,
-  relationships are optional, no unique constraints. Turning it on should be a `cloudKitDatabase:`
-  argument in `DatesModelContainer.makeContainer` plus the capability, with no migration. Keep it
-  that way — adding a non-defaulted attribute now costs a migration later.
+- **Phase 06 (CloudKit) is built.** The store is CloudKit-backed —
+  `DatesModelContainer.makeContainer` passes `.private("iCloud.com.cdtm88.Dates")` — with
+  the entitlement in `project.yml`. Tests and `--uitest` pass `syncsWithCloudKit: false`;
+  `DatesApp.makeBestContainer` falls back to local-only when the entitlement is missing.
+  The schema must STAY CloudKit-shaped: every attribute defaulted, relationships optional,
+  no unique constraints — adding a non-defaulted attribute now costs a migration later.
 - **Phase 05 (import) is built.** CSV and Calendar import both stage through
   `ImportReviewView` and land via `EventStore.importEvents` — one save, one reschedule,
   duplicates screened twice (review and store). The CSV schema lives in
