@@ -70,15 +70,75 @@ struct EventListView: View {
         } else if rows.isEmpty {
             ContentUnavailableView.search(text: searchText)
         } else {
+            let sections = monthSections
             List {
-                ForEach(rows) { row in
-                    NavigationLink(value: row.id) {
-                        EventRowView(event: row, now: now)
+                ForEach(sections) { section in
+                    Section {
+                        ForEach(section.events) { row in
+                            NavigationLink(value: row.id) {
+                                EventRowView(event: row, now: now)
+                            }
+                            // Rows within a month run unbroken; the only line is the
+                            // month divider drawn in the next header below.
+                            .listRowSeparator(.hidden)
+                            .listSectionSeparator(.hidden)
+                        }
+                    } header: {
+                        // The divider closes the previous month, so it belongs to this
+                        // header rather than a footer — a footer adds a tall empty band.
+                        VStack(alignment: .leading, spacing: 12) {
+                            if section.id != sections.first?.id {
+                                Divider()
+                            }
+                            Text(section.title)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                                .textCase(nil)
+                        }
+                        .listSectionSeparator(.hidden)
                     }
                 }
             }
             .listStyle(.plain)
         }
+    }
+
+    /// A run of consecutive rows whose next occurrence falls in the same month.
+    private struct MonthSection: Identifiable {
+        let id: String
+        let title: String
+        var events: [EventSnapshot]
+    }
+
+    /// Rows are already sorted soonest-first, so slicing them at month boundaries yields
+    /// sections in chronological order — this month first, wrapping into next year at the
+    /// end. Months beyond December carry their year ("January 2027") to mark the wrap.
+    private var monthSections: [MonthSection] {
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: now)
+        var sections: [MonthSection] = []
+        for row in rows {
+            let id: String
+            let title: String
+            if let next = row.nextOccurrence(from: now, calendar: calendar) {
+                let month = calendar.component(.month, from: next)
+                let year = calendar.component(.year, from: next)
+                id = "\(year)-\(month)"
+                title = year == currentYear
+                    ? EventFormatting.monthName(month)
+                    : "\(EventFormatting.monthName(month)) \(year)"
+            } else {
+                // Unrepresentable dates sort last; they get a section rather than vanishing.
+                id = "unknown"
+                title = "No date"
+            }
+            if sections.last?.id == id {
+                sections[sections.count - 1].events.append(row)
+            } else {
+                sections.append(MonthSection(id: id, title: title, events: [row]))
+            }
+        }
+        return sections
     }
 
     /// Filtering and sorting run here rather than in the SwiftData query, because

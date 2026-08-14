@@ -29,7 +29,7 @@ struct RootView: View {
 
             // Seeding happens before the first list render so a new user never sees an
             // event form with no groups to choose from (GROUP-01).
-            try? DatesModelContainer.seedIfNeeded(modelContext)
+            _ = try? DatesModelContainer.seedIfNeeded(modelContext)
 
             let store = EventStore(context: modelContext, settings: settings)
             self.store = store

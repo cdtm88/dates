@@ -33,15 +33,17 @@ struct DatesApp: App {
         router.register()
     }
 
-    /// CloudKit-backed when there is an account to sync with; local-only otherwise.
+    /// CloudKit-backed when the build can sync and there is an account to sync with;
+    /// local-only otherwise.
     ///
-    /// The account token gates the CloudKit attempt because a CloudKit-backed init TRAPS —
-    /// it does not throw — when the process lacks the iCloud entitlement, which is exactly
-    /// what an unsigned CI build running as the unit-test host is. No account means nothing
-    /// to sync anyway, and an unsigned process can never report one, so the gate is safe on
-    /// both sides; a signed-in device picks sync up on the next cold launch. Memory is the
-    /// last resort: bad, but better than crashing on every launch, which is unrecoverable
-    /// without a reinstall.
+    /// A CloudKit-backed init TRAPS — it does not throw — when the process lacks the
+    /// iCloud entitlement. Debug builds sign with DatesDebug.entitlements, which omits
+    /// iCloud (personal teams cannot provision it), so the attempt is Release-only; the
+    /// account token cannot stand in for the entitlement because a signed-in device
+    /// reports a token even when the running binary is not entitled. The token still
+    /// gates Release: no account means nothing to sync, and an unsigned CI build can
+    /// never report one. Memory is the last resort: bad, but better than crashing on
+    /// every launch, which is unrecoverable without a reinstall.
     private static func makeBestContainer(isUITesting: Bool) -> ModelContainer {
         if isUITesting {
             // Empty in-memory store, no CloudKit: every UI test run starts clean.
@@ -49,10 +51,12 @@ struct DatesApp: App {
                 return container
             }
         }
-        let hasICloudAccount = FileManager.default.ubiquityIdentityToken != nil
-        if hasICloudAccount, let container = try? DatesModelContainer.makeContainer() {
+        #if !DEBUG
+        if FileManager.default.ubiquityIdentityToken != nil,
+           let container = try? DatesModelContainer.makeContainer() {
             return container
         }
+        #endif
         do {
             return try DatesModelContainer.makeContainer(syncsWithCloudKit: false)
         } catch {
