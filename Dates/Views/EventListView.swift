@@ -13,9 +13,7 @@ struct EventListView: View {
     @Query(sort: \EventGroup.createdAt) private var groups: [EventGroup]
 
     /// The list's three modal destinations, driven by one item so only one sheet modifier
-    /// hangs off the content node. Stacking a boolean `.sheet` per destination broke on
-    /// the iOS 18 simulator once the import presenters joined the same chain: taps landed,
-    /// state flipped, and the sheet never came — with no log line to say why.
+    /// hangs off the content node and only one can ever be asked for at a time.
     private enum ActiveSheet: String, Identifiable {
         case addEvent, groups, settings
         var id: String { rawValue }

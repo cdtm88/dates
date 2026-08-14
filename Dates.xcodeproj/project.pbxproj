@@ -15,6 +15,7 @@
 		340785D2B69F957AAF19F983 /* EventListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378C969B90DA71665CC1CDF2 /* EventListView.swift */; };
 		3416641C92E45D976D8E926F /* EventStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 383B2215B735B97CFA835DE3 /* EventStore.swift */; };
 		3DDC82515B2BC445615D63D3 /* OffsetSelectionEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA717EC43CD61B2E072146C /* OffsetSelectionEditor.swift */; };
+		465D567C5B594E5812D19B2B /* AppSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A880F8C947B714622BB93E /* AppSettingsTests.swift */; };
 		4C3C93B137281FC170945113 /* ImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE720E418B7A715529973B64 /* ImportTests.swift */; };
 		4E31E730ABEC80ED031F106A /* FakeNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4DFFAE94109E39B2D2DA70 /* FakeNotificationCenter.swift */; };
 		62CD1998E88A2E82E9AAC2D4 /* EventGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B95130E8E7188F06B6A79 /* EventGroup.swift */; };
@@ -90,6 +91,7 @@
 		DB4487CBEE47F5A691C1DDA7 /* CalendarImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarImporter.swift; sourceTree = "<group>"; };
 		E08B5CF47408EFECFCE16E58 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E347E64DA97FE82B25AED678 /* DatesTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DatesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E6A880F8C947B714622BB93E /* AppSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsTests.swift; sourceTree = "<group>"; };
 		EA83EF3F1E7DCADF4CEF742E /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		EEBE5C59C6B427D8090E9FA4 /* DatesModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesModelContainer.swift; sourceTree = "<group>"; };
 		F6CA71650233D487FEFECA9A /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
@@ -201,6 +203,7 @@
 		BFF243895F9A1BC859FBACA2 /* DatesTests */ = {
 			isa = PBXGroup;
 			children = (
+				E6A880F8C947B714622BB93E /* AppSettingsTests.swift */,
 				0F4DFFAE94109E39B2D2DA70 /* FakeNotificationCenter.swift */,
 				AE720E418B7A715529973B64 /* ImportTests.swift */,
 				FF8163408D7D8FBA6170D57B /* PersistenceTests.swift */,
@@ -368,6 +371,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				465D567C5B594E5812D19B2B /* AppSettingsTests.swift in Sources */,
 				4E31E730ABEC80ED031F106A /* FakeNotificationCenter.swift in Sources */,
 				4C3C93B137281FC170945113 /* ImportTests.swift in Sources */,
 				DE6B87472FC274EE5D978285 /* PersistenceTests.swift in Sources */,

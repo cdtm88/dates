@@ -15,9 +15,10 @@ struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: 24) {
             VStack(spacing: 8) {
-                Image(systemName: "calendar.badge.plus")
-                    .font(.system(size: 44))
-                    .foregroundStyle(.secondary)
+                Image("BrandMark")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 96, height: 96)
                     .accessibilityHidden(true)
 
                 Text("No dates yet")

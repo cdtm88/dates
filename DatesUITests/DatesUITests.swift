@@ -93,10 +93,14 @@ final class DatesUITests: XCTestCase {
         addEvent(named: "Queue Check")
         XCTAssertTrue(app.staticTexts["Queue Check"].waitForExistence(timeout: 10))
 
-        tapWhenReady(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Filter and settings'")).firstMatch)
-        tapWhenReady(app.buttons["Settings"])
+        openSettingsFromMenu()
 
-        XCTAssertTrue(app.staticTexts["Reminder time"].waitForExistence(timeout: 10))
+        XCTAssertTrue(settingsHeader.waitForExistence(timeout: 10))
+
+        // The appearance control defaults to Light on a fresh install (UI-01, Phase 07).
+        let lightSegment = app.buttons["Light"]
+        XCTAssertTrue(lightSegment.exists)
+        XCTAssertTrue(lightSegment.isSelected, "Light must be the first-launch default")
 
         // The queue read-out is a footer sentence now, not a diagnostics table.
         let coverage = app.staticTexts.matching(
@@ -113,6 +117,28 @@ final class DatesUITests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    /// The "Reminder time" section header. Matched case-insensitively: iOS 18 exposes a
+    /// Form section header's accessibility label as the uppercased text it draws
+    /// ("REMINDER TIME"), while newer versions keep the authored case — an exact match
+    /// passes locally and fails on CI with nothing in the log to say why.
+    private var settingsHeader: XCUIElement {
+        app.staticTexts.matching(NSPredicate(format: "label ==[c] 'Reminder time'")).firstMatch
+    }
+
+    /// Opens Settings via the filter menu, retrying once and dumping the accessibility
+    /// hierarchy to the console on failure so a CI-only failure is diagnosable from the log.
+    private func openSettingsFromMenu() {
+        let menuButton = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Filter and settings'")).firstMatch
+        for attempt in 0..<2 {
+            tapWhenReady(menuButton)
+            tapWhenReady(app.buttons["Settings"])
+
+            if settingsHeader.waitForExistence(timeout: 5) { return }
+            print("openSettingsFromMenu attempt \(attempt) failed; hierarchy:\n\(app.debugDescription)")
+        }
+        XCTFail("The Settings sheet never presented from the menu")
+    }
 
     /// Creates an event through the form with default date and group, answering the
     /// notification permission prompt if this install has not seen it yet.

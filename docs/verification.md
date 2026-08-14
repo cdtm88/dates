@@ -1,4 +1,4 @@
-# Requirement verification — phases 01 to 05
+# Requirement verification — phases 01 to 05 and 07
 
 Three levels of evidence appear below. Both test suites run on every pull request:
 `DatesKit` on a Linux container, `DatesTests` on a macOS runner against an iPhone simulator.
@@ -77,6 +77,13 @@ is the one referenced by id in the handover notes.
 | Calendar import offers only Birthdays-calendar entries and yearly-recurring events | Implemented | `CalendarImporter` — EventKit cannot run in a unit test; needs a simulator with calendar data |
 | Nothing is saved before the user reviews what will be added, skipped and refused | Implemented | `ImportReviewView` |
 
+## Phase 07 — appearance
+
+| ID | Status | Where |
+|---|---|---|
+| UI-01 | Tested (Xcode) | Light is the first-launch default; `AppSettingsTests.testTheFirstLaunchAppearanceIsLightNotSystem`, and the UI suite asserts the selected segment |
+| UI-02/03 | Implemented | Light / Dark / System picker in Settings, applied via `preferredColorScheme` at the root so sheets and alerts follow; persisted per device in `AppSettings` |
+
 ## Judgement calls
 
 The PRD left these open. Each is a decision, not an oversight — change any of them and the
@@ -148,8 +155,6 @@ and it is correct for every other month without a second code path.
 
 ## Known gaps
 
-- **UI-01 to UI-03 are Phase 07.** There is no appearance setting yet, so the app follows the
-  system. The PRD wants Light as the first-launch default; that lands with the rest of Phase 07.
 - **PERF-01 and PERF-02 are unverified.** Both are device measurements.
 - **The calendar import path is untested by automation.** EventKit needs a device or
   simulator with calendar data and a granted permission; the mapping rules it feeds
