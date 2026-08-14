@@ -64,6 +64,10 @@ struct EventDetailView: View {
                 if let badge = EventFormatting.yearsBadge(snapshot, now: now) {
                     LabeledContent(snapshot.type.countsAge ? "Age" : "Years", value: badge)
                 }
+                if let milestone = EventFormatting.milestoneLine(snapshot, now: now) {
+                    Label(milestone, systemImage: "sparkles")
+                        .foregroundStyle(Color.accentColor)
+                }
             }
 
             Section {

@@ -224,4 +224,37 @@ final class EventImportTests: XCTestCase {
     func testExportOfNoEventsIsJustTheHeader() {
         XCTAssertEqual(EventCSV.encode([]), "Name,Type,Month,Day,Year,Group\r\n")
     }
+
+    // MARK: - CSV injection
+
+    func testExportDefusesFormulaShapedFieldsWithAnApostrophe() {
+        let events = [
+            makeEvent(name: "=SUM(A1:A9)", date: annual(3, 14), groupName: "@work"),
+            makeEvent(name: "+44 Pat", date: annual(4, 1), groupName: "-Friends"),
+        ]
+        let text = EventCSV.encode(events)
+        XCTAssertTrue(text.contains("'=SUM(A1:A9)"))
+        XCTAssertTrue(text.contains("'@work"))
+        XCTAssertTrue(text.contains("'+44 Pat"))
+        XCTAssertTrue(text.contains("'-Friends"))
+        XCTAssertFalse(text.contains("\r\n=")) // No line starts with a live formula.
+    }
+
+    func testDefusedFieldsRestoreOnImportAndStillScreenAsDuplicates() throws {
+        let events = [makeEvent(name: "=SUM(A1:A9)", date: annual(3, 14), groupName: "@work")]
+        let outcome = try EventCSV.decode(EventCSV.encode(events))
+
+        XCTAssertTrue(outcome.rejectedRows.isEmpty)
+        XCTAssertEqual(outcome.candidates.map(\.name), ["=SUM(A1:A9)"])
+        XCTAssertEqual(outcome.candidates.map(\.groupName), ["@work"])
+
+        let (fresh, duplicates) = ImportScreening.partition(outcome.candidates, existing: events)
+        XCTAssertTrue(fresh.isEmpty)
+        XCTAssertEqual(duplicates.count, 1)
+    }
+
+    func testAnOrdinaryApostropheNameSurvivesImportUntouched() {
+        let outcome = decode("Name,Month,Day\n'Awa,3,14\n")
+        XCTAssertEqual(outcome.candidates.map(\.name), ["'Awa"])
+    }
 }

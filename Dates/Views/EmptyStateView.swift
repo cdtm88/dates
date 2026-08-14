@@ -2,14 +2,14 @@ import SwiftUI
 
 /// The empty list state, offering the three entry routes (LIST-06).
 ///
-/// Calendar and CSV import are Phase 05. They appear here from the start because the empty
+/// Contacts and CSV import are Phase 05. They appear here from the start because the empty
 /// state is where a new user decides how to populate the app, and hiding them until later
 /// would mean redesigning this screen twice. They are disabled rather than absent so nobody
 /// taps into a dead end.
 struct EmptyStateView: View {
     var onAddManually: () -> Void
     var importAvailable: Bool = false
-    var onImportCalendar: () -> Void = {}
+    var onImportContacts: () -> Void = {}
     var onImportCSV: () -> Void = {}
 
     var body: some View {
@@ -38,8 +38,8 @@ struct EmptyStateView: View {
                 }
                 .buttonStyle(.borderedProminent)
 
-                Button(action: onImportCalendar) {
-                    Label("Import from Calendar", systemImage: "calendar")
+                Button(action: onImportContacts) {
+                    Label("Import from Contacts", systemImage: "person.crop.circle")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)

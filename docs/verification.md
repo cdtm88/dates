@@ -74,7 +74,7 @@ is the one referenced by id in the handover notes.
 | A batch import is one save, one reschedule, one permission prompt — never one per row | Tested (Xcode) | `EventStore.importEvents`; `ImportTests` |
 | A row naming an existing group joins it; an unknown name falls back rather than creating a group | Tested (Xcode) | `testACandidateNamingAnExistingGroupJoinsItAndTheRestUseTheFallback` |
 | An exported file re-imports as pure duplicates | Tested (Linux + Xcode) | `testExportedEventsReimportAsPureDuplicates`, and again through a real store in `ImportTests` |
-| Calendar import offers only Birthdays-calendar entries and yearly-recurring events | Implemented | `CalendarImporter` — EventKit cannot run in a unit test; needs a simulator with calendar data |
+| Contacts import offers only birthdays and anniversary-labelled dates | Implemented | `ContactsImporter` — the Contacts framework cannot run in a unit test; needs a simulator with contact data |
 | Nothing is saved before the user reviews what will be added, skipped and refused | Implemented | `ImportReviewView` |
 
 ## Phase 06 — iCloud sync
@@ -140,14 +140,15 @@ switches, seeded from the group default; on save, a selection equal to the group
 stored as inherit (so a later change to the group still flows through, GROUP-05) and anything
 else — including all three off — becomes the override.
 
-### 5. Import never creates groups, and calendar import never guesses a year
+### 5. Import never creates groups, and contacts import never guesses a year
 
 A CSV `Group` value that matches no existing group falls back to a group chosen on the
 review screen, rather than silently creating one — a typo in a 200-row file should not
-produce a "Close famly" group. And a calendar occurrence's year says when the event next
-happens, not when the person was born, so calendar candidates always arrive year-unknown; a
-wrong age on every imported birthday would be worse than none. Both are editable after
-import like any hand-entered date.
+produce a "Close famly" group. Contacts candidates keep the year only when the card
+carries a real one — a contact's birthday year is the birth year, so ages computed from
+it are real; the placeholder year Contacts stores for year-unknown birthdays is dropped,
+because a wrong age on every imported birthday would be worse than none. Both are
+editable after import like any hand-entered date.
 
 ### 6. Duplicates cannot be force-imported
 
@@ -166,8 +167,8 @@ and it is correct for every other month without a second code path.
 ## Known gaps
 
 - **PERF-01 and PERF-02 are unverified.** Both are device measurements.
-- **The calendar import path is untested by automation.** EventKit needs a device or
-  simulator with calendar data and a granted permission; the mapping rules it feeds
-  (`ImportCandidate`, screening, the store path) are all tested.
+- **The contacts import path is untested by automation.** The Contacts framework needs a
+  device or simulator with contact data and a granted permission; the mapping rules it
+  feeds (`ImportCandidate`, screening, the store path) are all tested.
 - **The interface itself is unreviewed.** Behaviour is tested and the app builds, but no one
   has looked at a running screen. Layout, spacing, and Dynamic Type behaviour are unverified.

@@ -4,6 +4,12 @@
 <dict>
 	<!-- No aps-environment or iCloud keys: personal development teams cannot
 	     provision those capabilities. CloudKit sync is Release-only; the app
-	     falls back to the local store when the entitlement is absent. -->
+	     falls back to the local store when the entitlement is absent.
+	     App Groups are provisionable on personal teams, and the widget needs
+	     the shared container in every configuration. -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.moorelabs.Dates</string>
+	</array>
 </dict>
 </plist>
