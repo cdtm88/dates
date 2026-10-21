@@ -55,7 +55,26 @@ final class DatesUITests: XCTestCase {
         XCTAssertTrue(save.isEnabled)
 
         app.buttons["Cancel"].tap()
-        XCTAssertTrue(app.staticTexts["No dates yet"].waitForExistence(timeout: 10))
+        app.buttons["Discard changes"].tap()
+        XCTAssertTrue(nameField.waitForNonExistence(timeout: 10))
+    }
+
+    func testUnsavedChangesSurviveASwipeDownAndCancelAsks() {
+        app.buttons["Add a date"].firstMatch.tap()
+        let nameField = app.textFields["Name"]
+        XCTAssertTrue(nameField.waitForExistence(timeout: 10))
+        nameField.tap()
+        nameField.typeText("Grace Hopper")
+
+        // A press-and-drag from the sheet's bar; a plain swipe can be eaten by the keyboard.
+        let bar = app.navigationBars.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        bar.press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9)))
+        XCTAssertTrue(nameField.waitForExistence(timeout: 5), "a swipe must not throw away typed changes")
+
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.staticTexts["Discard changes?"].waitForExistence(timeout: 5))
+        app.buttons["Discard changes"].tap()
+        XCTAssertTrue(nameField.waitForNonExistence(timeout: 10))
     }
 
     // MARK: - Leap day (DATA-04)
