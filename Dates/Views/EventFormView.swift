@@ -4,7 +4,7 @@ import DatesKit
 
 /// Create and edit an event (DATA-01, DATA-02, GROUP-04).
 struct EventFormView: View {
-    enum Mode: Equatable {
+    enum Mode {
         case create
         case edit(DateEvent)
 
@@ -33,8 +33,21 @@ struct EventFormView: View {
 
     @State private var errorMessage: String?
     @State private var isSaving = false
+    @State private var isConfirmingDiscard = false
+    /// The fields as loaded, so Cancel only asks when something was actually changed.
+    @State private var initialFields: Fields?
 
-    private let yearRange = Array((1900...Calendar.current.component(.year, from: Date())).reversed())
+    private let yearRange = Array((1900...Calendar.current.gregorian.component(.year, from: Date())).reversed())
+
+    private struct Fields: Equatable {
+        var name: String
+        var type: EventType
+        var month: Int
+        var day: Int
+        var year: Int?
+        var groupID: UUID?
+        var offsets: OffsetSelection
+    }
 
     var body: some View {
         NavigationStack {
@@ -47,6 +60,10 @@ struct EventFormView: View {
                         ForEach(EventType.allCases, id: \.self) { type in
                             Text(type.displayName).tag(type)
                         }
+                    }
+                } footer: {
+                    if isNameTooLong {
+                        Text("Names can be up to \(EventValidation.nameLengthRange.upperBound) characters.")
                     }
                 }
 
@@ -105,13 +122,20 @@ struct EventFormView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") {
+                        if hasChanges { isConfirmingDiscard = true } else { dismiss() }
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { Task { await save() } }
                         .disabled(!EventValidation.isValidName(name) || isSaving)
                 }
             }
+            .confirmationDialog("Discard changes?", isPresented: $isConfirmingDiscard, titleVisibility: .visible) {
+                Button("Discard changes", role: .destructive) { dismiss() }
+                Button("Keep editing", role: .cancel) {}
+            }
+            .interactiveDismissDisabled(hasChanges)
             .onAppear(perform: loadInitialValues)
             .onChange(of: month) { clampDay() }
             .onChange(of: year) { clampDay() }
@@ -153,6 +177,18 @@ struct EventFormView: View {
         return "Set just for this date. \(group.name)'s default is \(EventFormatting.offsetsSummary(group.defaultOffsets).lowercased())."
     }
 
+    private var fields: Fields {
+        Fields(name: name, type: type, month: month, day: day, year: year, groupID: selectedGroupID, offsets: offsets)
+    }
+
+    private var hasChanges: Bool {
+        initialFields.map { $0 != fields } ?? false
+    }
+
+    private var isNameTooLong: Bool {
+        EventValidation.normalisedName(name).count > EventValidation.nameLengthRange.upperBound
+    }
+
     private func clampDay() {
         if day > maxDay { day = maxDay }
     }
@@ -160,6 +196,7 @@ struct EventFormView: View {
     // MARK: - Load and save
 
     private func loadInitialValues() {
+        defer { initialFields = initialFields ?? fields }
         guard case let .edit(event) = mode else {
             selectedGroupID = selectedGroupID ?? groups.first(where: { !$0.isUngrouped })?.uuid ?? groups.first?.uuid
             offsets = selectedGroup?.defaultOffsets ?? .dayOf

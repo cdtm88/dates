@@ -44,7 +44,6 @@ enum Appearance: String, CaseIterable, Identifiable {
 final class AppSettings {
     private enum Key {
         static let notificationMinutes = "settings.notificationMinutesSinceMidnight"
-        static let hasRequestedNotificationAuthorisation = "settings.hasRequestedNotificationAuthorisation"
         static let appearance = "settings.appearance"
     }
 
@@ -60,14 +59,12 @@ final class AppSettings {
     @ObservationIgnored private let defaults: UserDefaults
 
     private var notificationMinutes: Int
-    private var didRequestNotificationAuthorisation: Bool
     private var appearanceRaw: String
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.notificationMinutes = (defaults.object(forKey: Key.notificationMinutes) as? Int)
             ?? TimeOfDay.defaultNotificationTime.minutesSinceMidnight
-        self.didRequestNotificationAuthorisation = defaults.bool(forKey: Key.hasRequestedNotificationAuthorisation)
         self.appearanceRaw = defaults.string(forKey: Key.appearance) ?? Appearance.light.rawValue
     }
 
@@ -88,17 +85,6 @@ final class AppSettings {
             guard newValue.rawValue != appearanceRaw else { return }
             appearanceRaw = newValue.rawValue
             defaults.set(newValue.rawValue, forKey: Key.appearance)
-        }
-    }
-
-    /// Tracks whether the system prompt has been shown, so authorisation is requested once on
-    /// first event save rather than on every save (NOTIF-01).
-    var hasRequestedNotificationAuthorisation: Bool {
-        get { didRequestNotificationAuthorisation }
-        set {
-            guard newValue != didRequestNotificationAuthorisation else { return }
-            didRequestNotificationAuthorisation = newValue
-            defaults.set(newValue, forKey: Key.hasRequestedNotificationAuthorisation)
         }
     }
 }

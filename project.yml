@@ -97,6 +97,8 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
         SKIP_INSTALL: YES
+        # Without its own accent, `.tint` in the widget falls back to system blue.
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         # One entitlements file for both configs: the widget needs only the app group,
         # which personal teams can provision, so Debug and Release do not differ.
         CODE_SIGN_ENTITLEMENTS: DatesWidget/DatesWidget.entitlements

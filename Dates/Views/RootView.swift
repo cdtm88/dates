@@ -6,6 +6,9 @@ import DatesKit
 struct RootView: View {
     @Bindable var settings: AppSettings
     @Bindable var router: NotificationRouter
+    /// The real store could not be opened. Showing the empty stand-in as a list would look
+    /// like data loss, and rescheduling from it would cancel every real reminder.
+    var isStoreUnavailable = false
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
@@ -15,7 +18,13 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if let store {
+            if isStoreUnavailable {
+                ContentUnavailableView(
+                    "Your dates couldn't be opened",
+                    systemImage: "exclamationmark.triangle",
+                    description: Text("Nothing has been deleted. Close Dates and open it again. If this keeps happening, free up some storage on your iPhone.")
+                )
+            } else if let store {
                 EventListView(store: store, settings: settings, router: router, now: ticker.now)
             } else {
                 ProgressView()
@@ -25,7 +34,7 @@ struct RootView: View {
         // Light is the first-launch default (UI-01, Phase 07).
         .preferredColorScheme(settings.appearance.colorScheme)
         .task {
-            guard store == nil else { return }
+            guard store == nil, !isStoreUnavailable else { return }
 
             // Seeding happens before the first list render so a new user never sees an
             // event form with no groups to choose from (GROUP-01).
@@ -52,6 +61,7 @@ struct RootView: View {
                 ticker.refresh()
                 Task { await store?.rescheduleAll() }
             case .background:
+                guard !isStoreUnavailable else { return }
                 BackgroundRefresh.scheduleNextRefresh()
             default:
                 break

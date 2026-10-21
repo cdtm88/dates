@@ -4,14 +4,14 @@ import DatesKit
 
 /// The next few dates, on the home screen and the lock screen.
 ///
-/// The timeline is one entry refreshed at local midnight: nothing in the data changes
-/// mid-day, and every countdown ticks over exactly when the day does. Edits inside the
+/// The timeline holds one entry per local midnight for the coming week: nothing in the
+/// data changes mid-day, and pre-computed entries tick every countdown over exactly when
+/// the day does, rather than whenever WidgetKit gets round to a reload. Edits inside the
 /// app arrive sooner than that — the store reloads the timelines after every save.
 struct UpcomingDatesWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "UpcomingDates", provider: UpcomingProvider()) { entry in
             UpcomingDatesView(entry: entry)
-                .containerBackground(for: .widget) { Color.clear }
         }
         .configurationDisplayName("Upcoming dates")
         .description("The next birthdays and anniversaries from your list.")
@@ -36,10 +36,10 @@ struct UpcomingProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<UpcomingEntry>) -> Void) {
         let now = Date()
         let calendar = Calendar.current
-        let nextMidnight = calendar.startOfDay(
-            for: calendar.date(byAdding: .day, value: 1, to: now) ?? now.addingTimeInterval(86_400)
-        )
-        completion(Timeline(entries: [entry(now: now, preview: false)], policy: .after(nextMidnight)))
+        let today = calendar.startOfDay(for: now)
+        let midnights = (1...7).compactMap { calendar.date(byAdding: .day, value: $0, to: today) }
+        let entries = [entry(now: now, preview: false)] + midnights.map { entry(now: $0, preview: false) }
+        completion(Timeline(entries: entries, policy: .atEnd))
     }
 
     private func entry(now: Date, preview: Bool) -> UpcomingEntry {
@@ -54,7 +54,7 @@ struct UpcomingProvider: TimelineProvider {
 extension UpcomingEntry {
     /// Gallery and placeholder content, dated relative to now so the countdowns read well.
     static var sampleEvents: [WidgetEvent] {
-        let calendar = Calendar.current
+        let calendar = Calendar.current.gregorian
         let now = Date()
         func sample(_ name: String, daysAhead: Int, type: EventType) -> WidgetEvent? {
             guard let day = calendar.date(byAdding: .day, value: daysAhead, to: now) else { return nil }
@@ -78,6 +78,12 @@ struct UpcomingDatesView: View {
     let entry: UpcomingEntry
 
     var body: some View {
+        content
+            .containerBackground(for: .widget) { background }
+    }
+
+    @ViewBuilder
+    private var content: some View {
         if entry.events.isEmpty {
             emptyState
         } else {
@@ -89,6 +95,21 @@ struct UpcomingDatesView: View {
             default:
                 eventList
             }
+        }
+    }
+
+    /// The same pair every stock widget uses — white in light mode, the elevated grey
+    /// (not pure black) in dark. A clear background here renders as black and makes the
+    /// widget look unlike its neighbours. The lock screen stays clear: the system draws
+    /// its own material behind accessory families.
+    @ViewBuilder
+    private var background: some View {
+        if family == .accessoryRectangular {
+            Color.clear
+        } else {
+            Color(UIColor { traits in
+                traits.userInterfaceStyle == .dark ? .secondarySystemBackground : .systemBackground
+            })
         }
     }
 
@@ -112,7 +133,7 @@ struct UpcomingDatesView: View {
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(.tint)
                 if event.milestoneYears(from: entry.date) != nil {
-                    Image(systemName: "sparkles")
+                    milestoneGlyph
                         .font(.footnote)
                         .foregroundStyle(.tint)
                 }
@@ -121,12 +142,14 @@ struct UpcomingDatesView: View {
             Text(event.name)
                 .font(.headline)
                 .lineLimit(2)
+                .privacySensitive()
             Text(WidgetFormatting.subtitle(event, now: entry.date))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 
     /// systemMedium: up to three rows, the same shape as the app's list.
@@ -139,8 +162,9 @@ struct UpcomingDatesView: View {
                             Text(event.name)
                                 .font(.subheadline.weight(.medium))
                                 .lineLimit(1)
+                                .privacySensitive()
                             if event.milestoneYears(from: entry.date) != nil {
-                                Image(systemName: "sparkles")
+                                milestoneGlyph
                                     .font(.caption2)
                                     .foregroundStyle(.tint)
                             }
@@ -155,6 +179,7 @@ struct UpcomingDatesView: View {
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.tint)
                 }
+                .accessibilityElement(children: .combine)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -167,8 +192,9 @@ struct UpcomingDatesView: View {
                 Text(event.name)
                     .font(.headline)
                     .lineLimit(1)
+                    .privacySensitive()
                 if event.milestoneYears(from: entry.date) != nil {
-                    Image(systemName: "sparkles")
+                    milestoneGlyph
                         .font(.caption2)
                 }
             }
@@ -176,6 +202,13 @@ struct UpcomingDatesView: View {
                 .font(.caption)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
+    }
+
+    /// Spoken as "milestone" rather than the symbol's name.
+    private var milestoneGlyph: some View {
+        Image(systemName: "sparkles")
+            .accessibilityLabel("Milestone")
     }
 }
 

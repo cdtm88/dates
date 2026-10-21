@@ -12,13 +12,16 @@ struct DatesApp: App {
     private let router = NotificationRouter()
 
     private let container: ModelContainer
+    /// True when neither on-disk store could be opened and the app is running on an empty
+    /// in-memory one. Nothing may then rewrite the reminders or the widget from it.
+    private let isUsingEmergencyStore: Bool
 
     init() {
         // UI tests pass `--uitest` so every run starts from an empty in-memory store
         // rather than whatever the previous run left on disk. Settings get the same
         // treatment: a throwaway suite, so a first-launch assertion (say, the default
         // appearance) cannot be broken by whatever was last chosen on that simulator.
-        let isUITesting = ProcessInfo.processInfo.arguments.contains("--uitest")
+        let isUITesting = Self.isUITesting
         if isUITesting {
             let suiteName = "uitest.\(UUID().uuidString)"
             let defaults = UserDefaults(suiteName: suiteName) ?? .standard
@@ -27,7 +30,7 @@ struct DatesApp: App {
         } else {
             settings = AppSettings()
         }
-        container = Self.makeBestContainer(isUITesting: isUITesting)
+        (container, isUsingEmergencyStore) = Self.makeBestContainer(isUITesting: isUITesting)
 
         #if DEBUG
         // Screenshot runs pass `--demo` (with `--uitest` for the throwaway store): the
@@ -42,6 +45,16 @@ struct DatesApp: App {
         router.register()
     }
 
+    /// `--uitest` is honoured in Debug builds only, so no Release launch can swap in a
+    /// throwaway store. UI tests run against the Debug configuration.
+    private static var isUITesting: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--uitest")
+        #else
+        false
+        #endif
+    }
+
     /// CloudKit-backed when the build can sync and there is an account to sync with;
     /// local-only otherwise.
     ///
@@ -53,24 +66,24 @@ struct DatesApp: App {
     /// gates Release: no account means nothing to sync, and an unsigned CI build can
     /// never report one. Memory is the last resort: bad, but better than crashing on
     /// every launch, which is unrecoverable without a reinstall.
-    private static func makeBestContainer(isUITesting: Bool) -> ModelContainer {
+    private static func makeBestContainer(isUITesting: Bool) -> (ModelContainer, isEmergency: Bool) {
         if isUITesting {
             // Empty in-memory store, no CloudKit: every UI test run starts clean.
             if let container = try? DatesModelContainer.makeContainer(inMemory: true, syncsWithCloudKit: false) {
-                return container
+                return (container, false)
             }
         }
         #if !DEBUG
         if FileManager.default.ubiquityIdentityToken != nil,
            let container = try? DatesModelContainer.makeContainer() {
-            return container
+            return (container, false)
         }
         #endif
         do {
-            return try DatesModelContainer.makeContainer(syncsWithCloudKit: false)
+            return (try DatesModelContainer.makeContainer(syncsWithCloudKit: false), false)
         } catch {
             do {
-                return try DatesModelContainer.makeContainer(inMemory: true, syncsWithCloudKit: false)
+                return (try DatesModelContainer.makeContainer(inMemory: true, syncsWithCloudKit: false), true)
             } catch {
                 fatalError("Could not create a model container: \(error)")
             }
@@ -79,11 +92,12 @@ struct DatesApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(settings: settings, router: router)
+            RootView(settings: settings, router: router, isStoreUnavailable: isUsingEmergencyStore)
         }
         .modelContainer(container)
         // Best-effort queue top-up while the app is closed (NOTIF-06, D-09).
         .backgroundTask(.appRefresh(BackgroundRefresh.taskIdentifier)) {
+            guard !isUsingEmergencyStore else { return }
             await BackgroundRefresh.performRefresh(
                 container: container,
                 notificationTime: AppSettings.storedNotificationTime()

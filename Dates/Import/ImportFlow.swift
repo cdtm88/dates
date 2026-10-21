@@ -39,8 +39,13 @@ final class ImportFlow {
             // the read fails on device even though it works in the simulator.
             let accessing = url.startAccessingSecurityScopedResource()
             defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-            if let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize,
-               size > Self.maxCSVBytes {
+            // An unknown size (an iCloud file not yet downloaded, some file providers) is
+            // refused too, or the cap would be skipped entirely.
+            guard let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize else {
+                errorMessage = "That file isn't available yet. Download it in Files, then try again."
+                return
+            }
+            guard size <= Self.maxCSVBytes else {
                 errorMessage = "That file is too large to be a Dates export. Pick a CSV under 5 MB."
                 return
             }

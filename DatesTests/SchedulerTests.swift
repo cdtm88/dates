@@ -58,6 +58,7 @@ final class SchedulerTests: XCTestCase {
     // MARK: - NOTIF-01
 
     func testAuthorisationIsRequestedOnceOnTheFirstSaveNotAtLaunch() async throws {
+        center.authorizationStatus = .notDetermined
         XCTAssertEqual(center.authorizationRequestCount, 0, "nothing should be requested before a save")
 
         let group = try seededGroup()
@@ -66,6 +67,18 @@ final class SchedulerTests: XCTestCase {
 
         try await store.createEvent(name: "Second", date: try annualDate(inDays: 50), type: .birthday, group: group)
         XCTAssertEqual(center.authorizationRequestCount, 1, "the prompt must not reappear on later saves")
+    }
+
+    func testAuthorisationIsRequestedWhenTheSystemHasForgottenIt() async throws {
+        // A restored phone: the app has prompted before, but iOS has reset the permission.
+        let group = try seededGroup()
+        center.authorizationStatus = .denied
+        try await store.createEvent(name: "First", date: try annualDate(inDays: 40), type: .birthday, group: group)
+        XCTAssertEqual(center.authorizationRequestCount, 0, "a denied permission is the user's answer")
+
+        center.authorizationStatus = .notDetermined
+        try await store.createEvent(name: "Second", date: try annualDate(inDays: 50), type: .birthday, group: group)
+        XCTAssertEqual(center.authorizationRequestCount, 1)
     }
 
     func testDenialLeavesTheAppFullyUsableAndSchedulesNothing() async throws {

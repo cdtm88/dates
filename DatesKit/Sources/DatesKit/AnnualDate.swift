@@ -42,6 +42,7 @@ public struct AnnualDate: Hashable, Codable, Sendable {
 
     /// Number of days in `month` of `year`, or nil for a calendar that cannot represent it.
     public static func daysInMonth(_ month: Int, year: Int, calendar: Calendar) -> Int? {
+        let calendar = calendar.gregorian
         guard let firstOfMonth = calendar.date(from: DateComponents(year: year, month: month, day: 1)),
               let range = calendar.range(of: .day, in: .month, for: firstOfMonth)
         else { return nil }
@@ -54,12 +55,14 @@ public struct AnnualDate: Hashable, Codable, Sendable {
     /// forward to 1 March (DATA-04, PRD §9). Implemented as a clamp to the month's length,
     /// which produces exactly that behaviour and is correct for every other month too.
     public func resolvedDay(inYear targetYear: Int, calendar: Calendar = .current) -> Int? {
+        let calendar = calendar.gregorian
         guard let maxDay = Self.daysInMonth(month, year: targetYear, calendar: calendar) else { return nil }
         return min(day, maxDay)
     }
 
     /// Local midnight at the start of this date's occurrence in `targetYear`.
     public func occurrence(inYear targetYear: Int, calendar: Calendar = .current) -> Date? {
+        let calendar = calendar.gregorian
         guard let resolvedDay = resolvedDay(inYear: targetYear, calendar: calendar) else { return nil }
         var components = DateComponents()
         components.year = targetYear
@@ -71,6 +74,7 @@ public struct AnnualDate: Hashable, Codable, Sendable {
 
     /// The calendar year of the next occurrence, counting today as the occurrence (D-12).
     public func nextOccurrenceYear(from now: Date, calendar: Calendar = .current) -> Int? {
+        let calendar = calendar.gregorian
         let today = calendar.startOfDay(for: now)
         let currentYear = calendar.component(.year, from: today)
         if let thisYear = occurrence(inYear: currentYear, calendar: calendar), thisYear >= today {
@@ -91,6 +95,7 @@ public struct AnnualDate: Hashable, Codable, Sendable {
 
     /// Whole days from today until the next occurrence. `0` means today.
     public func daysUntilNextOccurrence(from now: Date, calendar: Calendar = .current) -> Int? {
+        let calendar = calendar.gregorian
         guard let next = nextOccurrence(from: now, calendar: calendar) else { return nil }
         let today = calendar.startOfDay(for: now)
         return calendar.dateComponents([.day], from: today, to: next).day
@@ -113,5 +118,20 @@ extension AnnualDate: CustomStringConvertible {
         let base = String(format: "%02d-%02d", month, day)
         guard let year else { return base }
         return "\(year)-\(base)"
+    }
+}
+
+extension Calendar {
+    /// This calendar's Gregorian twin, keeping its time zone and locale.
+    ///
+    /// Stored month/day/year components are Gregorian. On a device set to the Buddhist,
+    /// Japanese, Hebrew or Islamic calendar, `Calendar.current` would read 1990 as a
+    /// Buddhist year or map month 9 to Elul, so every date calculation goes through this.
+    public var gregorian: Calendar {
+        guard identifier != .gregorian else { return self }
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        calendar.locale = locale
+        return calendar
     }
 }

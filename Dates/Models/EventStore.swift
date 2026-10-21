@@ -1,6 +1,7 @@
 import Foundation
 import OSLog
 import SwiftData
+import UserNotifications
 import Observation
 import WidgetKit
 import DatesKit
@@ -254,9 +255,17 @@ final class EventStore {
         )
     }
 
+    /// For a device whose events all arrived through sync: it never saved one, so it was
+    /// never asked, and nothing can be scheduled until it is.
+    func requestNotificationAuthorisation() async {
+        await requestAuthorisationOnFirstSave()
+        await rescheduleAll()
+    }
+
+    /// Asks the system, not a stored flag: after a restore to a new phone the flag would
+    /// come back set while iOS has reset the permission, and the prompt would never return.
     private func requestAuthorisationOnFirstSave() async {
-        guard !settings.hasRequestedNotificationAuthorisation else { return }
-        settings.hasRequestedNotificationAuthorisation = true
+        guard await scheduler.authorizationStatus() == .notDetermined else { return }
         _ = await scheduler.requestAuthorization()
     }
 }

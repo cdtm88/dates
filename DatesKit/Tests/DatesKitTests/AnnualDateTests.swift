@@ -139,4 +139,17 @@ final class AnnualDateTests: XCTestCase {
         XCTAssertTrue(EventValidation.isValidName(String(repeating: "a", count: 100)))
         XCTAssertFalse(EventValidation.isValidName(String(repeating: "a", count: 101)))
     }
+
+    // MARK: - Non-Gregorian device calendars
+
+    func testAgeAndCountdownIgnoreANonGregorianDeviceCalendar() {
+        let birthday = annual(9, 12, year: 1990)
+        let now = makeDate(2026, 9, 1)
+        for identifier: Calendar.Identifier in [.buddhist, .japanese, .hebrew, .islamicUmmAlQura] {
+            var device = Calendar(identifier: identifier)
+            device.timeZone = calendar.timeZone
+            XCTAssertEqual(birthday.yearsElapsedAtNextOccurrence(from: now, calendar: device), 36, "\(identifier)")
+            XCTAssertEqual(birthday.daysUntilNextOccurrence(from: now, calendar: device), 11, "\(identifier)")
+        }
+    }
 }

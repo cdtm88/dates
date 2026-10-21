@@ -138,7 +138,7 @@ struct ImportReviewView: View {
         } header: {
             Text("Couldn't be read")
         } footer: {
-            Text("Fix these rows in the file and import it again; the dates above import as duplicates and are skipped.")
+            Text("Fix these rows in the file and import it again. When you re-import, dates already added are skipped.")
         }
     }
 
@@ -152,10 +152,15 @@ struct ImportReviewView: View {
     }
 
     private func subtitle(for candidate: ImportCandidate) -> String {
-        var date = "\(candidate.date.day) \(EventFormatting.monthName(candidate.date.month))"
-        if let year = candidate.date.year {
-            date += " \(year)"
+        // Gregorian, as stored; 2000 is a leap year, so 29 February formats when no year is set.
+        let calendar = Calendar.current.gregorian
+        var style = Date.FormatStyle(calendar: calendar, timeZone: calendar.timeZone).day().month(.wide)
+        if candidate.date.year != nil {
+            style = style.year()
         }
+        let components = DateComponents(year: candidate.date.year ?? 2000, month: candidate.date.month, day: candidate.date.day)
+        let date = calendar.date(from: components)?.formatted(style)
+            ?? "\(candidate.date.day)/\(candidate.date.month)"
         var parts = [candidate.type.displayName, date]
         if let groupName = candidate.groupName {
             parts.append(groupName)
