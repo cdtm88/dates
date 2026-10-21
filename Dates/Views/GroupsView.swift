@@ -158,6 +158,7 @@ struct GroupFormView: View {
             }
             .navigationTitle(mode.title)
             .navigationBarTitleDisplayMode(.inline)
+            .horizontalBarsOnly()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
