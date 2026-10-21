@@ -11,6 +11,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var authorizationStatus: UNAuthorizationStatus?
     @State private var isExportingCSV = false
     @State private var exportDocument: CSVExportDocument?
@@ -167,6 +168,10 @@ struct SettingsView: View {
                 Text(exportResultMessage ?? "")
             }
             .task { await refreshDiagnostics() }
+            // Back from the Settings app, where the user may just have turned notifications on.
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { Task { await refreshDiagnostics() } }
+            }
             .onChange(of: settings.notificationTime) {
                 // Changing the time invalidates every pending fire date (NOTIF-09).
                 Task {
@@ -222,10 +227,15 @@ struct SettingsView: View {
         if isSyncing {
             return "Your dates sync privately through iCloud to your other devices."
         }
+        #if DEBUG
+        // Debug builds never open the CloudKit store (see DatesApp.makeBestContainer).
+        return "iCloud sync is off in development builds."
+        #else
         if FileManager.default.ubiquityIdentityToken != nil {
             return "Close Dates and open it again to start syncing with iCloud."
         }
         return "Sign in to iCloud in the Settings app to sync your dates across your devices. Everything stays on this device until then."
+        #endif
     }
 
     private func refreshDiagnostics() async {
