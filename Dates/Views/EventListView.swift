@@ -3,6 +3,10 @@ import SwiftData
 import DatesKit
 
 /// The home screen: one chronological list of every date, soonest first (LIST-01 to LIST-06).
+///
+/// A split view, so a regular-width display (iPhone Duo open) shows the list and the
+/// selected date side by side, split evenly at the fold. In compact width it collapses to
+/// a stack and behaves exactly as a push from the list.
 struct EventListView: View {
     let store: EventStore
     let settings: AppSettings
@@ -19,21 +23,19 @@ struct EventListView: View {
         var id: String { rawValue }
     }
 
-    @State private var path: [UUID] = []
+    @State private var selection: UUID?
+    @State private var columnVisibility = NavigationSplitViewVisibility.all
     @State private var searchText = ""
     @State private var selectedGroupID: UUID?
     @State private var activeSheet: ActiveSheet?
     @State private var importFlow = ImportFlow()
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             content
                 .navigationTitle("Dates")
                 .searchable(text: $searchText, prompt: "Search names")
                 .toolbar { toolbarContent }
-                .navigationDestination(for: UUID.self) { eventID in
-                    EventDetailView(eventID: eventID, store: store, now: now)
-                }
                 .sheet(item: $activeSheet) { sheet in
                     switch sheet {
                     case .addEvent:
@@ -44,6 +46,22 @@ struct EventListView: View {
                         SettingsView(store: store, settings: settings)
                     }
                 }
+        } detail: {
+            if let selection {
+                EventDetailView(eventID: selection, store: store, now: now)
+                    // A fresh view per date, so its query and edit state never carry over.
+                    .id(selection)
+            } else if !events.isEmpty {
+                ContentUnavailableView("No date selected", systemImage: "calendar",
+                                       description: Text("Pick a date from the list."))
+            }
+        }
+        // Both columns stay on screen in regular width, rather than the detail alone with
+        // the list in an overlay; the system splits them evenly at the fold.
+        .navigationSplitViewStyle(.balanced)
+        // A date deleted here or on another device must not leave its detail open.
+        .onChange(of: events.map(\.uuid)) { _, ids in
+            if let selection, !ids.contains(selection) { self.selection = nil }
         }
         // On the stack rather than the content, so the import presenters (a sheet, the file
         // picker and an alert) never share a node with the sheet above.
@@ -53,7 +71,7 @@ struct EventListView: View {
         .onChange(of: router.pendingEventID, initial: true) {
             guard let eventID = router.consumePendingEventID() else { return }
             guard events.contains(where: { $0.uuid == eventID }) else { return }
-            path = [eventID]
+            selection = eventID
         }
     }
 
@@ -73,7 +91,7 @@ struct EventListView: View {
             ContentUnavailableView.search(text: searchText)
         } else {
             let sections = monthSections(rows)
-            List {
+            List(selection: $selection) {
                 ForEach(sections) { section in
                     Section {
                         ForEach(section.events) { row in
