@@ -26,11 +26,12 @@ public struct AnnualDate: Hashable, Codable, Sendable {
     /// paired with a stored non-leap year.
     public init?(month: Int, day: Int, year: Int? = nil) {
         guard (1...12).contains(month) else { return nil }
+        // Before any calendar call: an imported year like Int.max must never reach Foundation.
+        if let year, year < 1 || year > 9999 { return nil }
         let validationYear = year ?? Self.referenceLeapYear
         guard let maxDay = Self.daysInMonth(month, year: validationYear, calendar: Self.validationCalendar),
               (1...maxDay).contains(day)
         else { return nil }
-        if let year, year < 1 || year > 9999 { return nil }
         self.month = month
         self.day = day
         self.year = year

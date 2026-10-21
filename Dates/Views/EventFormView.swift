@@ -37,7 +37,15 @@ struct EventFormView: View {
     /// The fields as loaded, so Cancel only asks when something was actually changed.
     @State private var initialFields: Fields?
 
-    private let yearRange = Array((1900...Calendar.current.gregorian.component(.year, from: Date())).reversed())
+    private let currentYear = Calendar.current.gregorian.component(.year, from: Date())
+
+    /// 1900 to this year, stretched to include a stored year outside that span (an import
+    /// can carry 1850), or the picker would show it as blank.
+    private var yearRange: [Int] {
+        let lower = min(1900, year ?? 1900)
+        let upper = max(currentYear, year ?? currentYear)
+        return Array((lower...upper).reversed())
+    }
 
     private struct Fields: Equatable {
         var name: String

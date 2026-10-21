@@ -16,6 +16,15 @@ final class AnnualDateTests: XCTestCase {
         XCTAssertNil(AnnualDate(month: 4, day: 31))
     }
 
+    func testRejectsYearsOutsideTheSupportedRange() {
+        XCTAssertNil(AnnualDate(month: 1, day: 1, year: 0))
+        XCTAssertNil(AnnualDate(month: 1, day: 1, year: 10_000))
+        XCTAssertNil(AnnualDate(month: 1, day: 1, year: .max))
+        XCTAssertNil(AnnualDate(month: 1, day: 1, year: .min))
+        XCTAssertNotNil(AnnualDate(month: 1, day: 1, year: 1))
+        XCTAssertNotNil(AnnualDate(month: 12, day: 31, year: 9999))
+    }
+
     func test29FebruaryIsValidWithoutAYearAndWithALeapYear() {
         XCTAssertNotNil(AnnualDate(month: 2, day: 29))
         XCTAssertNotNil(AnnualDate(month: 2, day: 29, year: 2000))
