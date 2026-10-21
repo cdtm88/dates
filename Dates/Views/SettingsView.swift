@@ -13,6 +13,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @State private var authorizationStatus: UNAuthorizationStatus?
+    @State private var hasICloudAccount = FileManager.default.ubiquityIdentityToken != nil
     @State private var isExportingCSV = false
     @State private var exportDocument: CSVExportDocument?
     @State private var exportResultMessage: String?
@@ -172,6 +173,12 @@ struct SettingsView: View {
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active { Task { await refreshDiagnostics() } }
             }
+            .onReceive(
+                NotificationCenter.default.publisher(for: .NSUbiquityIdentityDidChange)
+                    .receive(on: DispatchQueue.main)
+            ) { _ in
+                hasICloudAccount = FileManager.default.ubiquityIdentityToken != nil
+            }
             .onChange(of: settings.notificationTime) {
                 // Changing the time invalidates every pending fire date (NOTIF-09).
                 Task {
@@ -216,11 +223,13 @@ struct SettingsView: View {
         return base + " All \(summary.totalEventCount) dates have reminders scheduled through \(through)."
     }
 
-    /// Whether the open store is the CloudKit-backed one. The account alone is not enough:
-    /// the container is chosen at launch, so an account added since then, or a CloudKit
-    /// store that failed to open, leaves this session local-only.
+    /// Whether the open store is the CloudKit-backed one and there is still an account to
+    /// sync with. The container is chosen at launch, so an account added since then, or a
+    /// CloudKit store that failed to open, leaves this session local-only; signing out
+    /// mid-session pauses a CloudKit store that is open.
     private var isSyncing: Bool {
-        modelContext.container.configurations.contains { $0.cloudKitContainerIdentifier != nil }
+        hasICloudAccount
+            && modelContext.container.configurations.contains { $0.cloudKitContainerIdentifier != nil }
     }
 
     private var syncFooter: String {
@@ -231,7 +240,7 @@ struct SettingsView: View {
         // Debug builds never open the CloudKit store (see DatesApp.makeBestContainer).
         return "iCloud sync is off in development builds."
         #else
-        if FileManager.default.ubiquityIdentityToken != nil {
+        if hasICloudAccount {
             return "Close Dates and open it again to start syncing with iCloud."
         }
         return "Sign in to iCloud in the Settings app to sync your dates across your devices. Everything stays on this device until then."
@@ -240,5 +249,6 @@ struct SettingsView: View {
 
     private func refreshDiagnostics() async {
         authorizationStatus = await NotificationScheduler.shared.authorizationStatus()
+        hasICloudAccount = FileManager.default.ubiquityIdentityToken != nil
     }
 }
