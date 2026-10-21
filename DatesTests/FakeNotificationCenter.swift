@@ -17,7 +17,11 @@ final class FakeNotificationCenter: NotificationCenterProtocol, @unchecked Senda
     private let lock = NSLock()
 
     func requestAuthorization(options: UNAuthorizationOptions) async throws -> Bool {
-        lock.withLock { authorizationRequestCount += 1 }
+        lock.withLock {
+            authorizationRequestCount += 1
+            // Like the real center, answering the prompt settles the status for good.
+            authorizationStatus = authorizationGrantResult ? .authorized : .denied
+        }
         return authorizationGrantResult
     }
 

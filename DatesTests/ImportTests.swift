@@ -101,6 +101,7 @@ final class ImportTests: XCTestCase {
     }
 
     func testImportRequestsAuthorisationOnTheFirstSaveExactlyOnce() async throws {
+        center.authorizationStatus = .notDetermined
         XCTAssertEqual(center.authorizationRequestCount, 0)
         try await store.importEvents(
             [

@@ -124,6 +124,7 @@ public enum EventCSV {
     public enum FileError: Error, Hashable, LocalizedError {
         case empty
         case missingColumns([String])
+        case tooManyRows(limit: Int)
 
         public var errorDescription: String? {
             switch self {
@@ -131,13 +132,20 @@ public enum EventCSV {
                 return "The file has no rows."
             case .missingColumns(let columns):
                 return "The header row is missing: \(columns.joined(separator: ", "))."
+            case .tooManyRows(let limit):
+                return "The file has more than \(limit) rows. Split it and import each part."
             }
         }
     }
 
+    /// Far more dates than anyone keeps, but it stops one import from inserting, syncing
+    /// and scheduling hundreds of thousands of rows from a hostile or mispicked file.
+    public static let maxRows = 5_000
+
     public static func decode(_ text: String) throws -> DecodeOutcome {
         let rows = CSVTable.parse(text)
         guard let header = rows.first else { throw FileError.empty }
+        guard rows.count - 1 <= maxRows else { throw FileError.tooManyRows(limit: maxRows) }
 
         let columnIndex = Dictionary(
             header.enumerated().map { ($1.trimmingCharacters(in: .whitespaces).lowercased(), $0) },
@@ -239,7 +247,7 @@ public enum EventCSV {
 
     /// Spreadsheets treat a cell starting with one of these as a formula, so a name like
     /// "=1+1" in an exported file would execute when opened in Excel (CSV injection).
-    private static let formulaStarters: Set<Character> = ["=", "+", "-", "@", "\t"]
+    private static let formulaStarters: Set<Character> = ["=", "+", "-", "@", "\t", "\r"]
 
     /// Defuses a formula-shaped field with a leading apostrophe — the convention Excel and
     /// Sheets themselves use for "this cell is text". Only the free-text columns (Name,

@@ -49,7 +49,8 @@ struct EventListView: View {
         // picker and an alert) never share a node with the sheet above.
         .importFlow(importFlow, store: store)
         // A notification tap opens that event's detail view and does nothing else (NOTIF-10).
-        .onChange(of: router.pendingEventID) {
+        // `initial` catches a cold-launch tap, whose ID is set before this view exists.
+        .onChange(of: router.pendingEventID, initial: true) {
             guard let eventID = router.consumePendingEventID() else { return }
             guard events.contains(where: { $0.uuid == eventID }) else { return }
             path = [eventID]
@@ -60,17 +61,18 @@ struct EventListView: View {
 
     @ViewBuilder
     private var content: some View {
+        let rows = self.rows
         if events.isEmpty {
             EmptyStateView(
                 onAddManually: { activeSheet = .addEvent },
-                importAvailable: true,
+                isImportingContacts: importFlow.isFetchingContacts,
                 onImportContacts: { importFlow.fetchContactCandidates(now: now) },
                 onImportCSV: { importFlow.isPickingCSV = true }
             )
         } else if rows.isEmpty {
             ContentUnavailableView.search(text: searchText)
         } else {
-            let sections = monthSections
+            let sections = monthSections(rows)
             List {
                 ForEach(sections) { section in
                     Section {
@@ -113,8 +115,8 @@ struct EventListView: View {
     /// Rows are already sorted soonest-first, so slicing them at month boundaries yields
     /// sections in chronological order — this month first, wrapping into next year at the
     /// end. Months beyond December carry their year ("January 2027") to mark the wrap.
-    private var monthSections: [MonthSection] {
-        let calendar = Calendar.current
+    private func monthSections(_ rows: [EventSnapshot]) -> [MonthSection] {
+        let calendar = Calendar.current.gregorian
         let currentYear = calendar.component(.year, from: now)
         var sections: [MonthSection] = []
         for row in rows {

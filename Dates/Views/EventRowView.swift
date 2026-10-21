@@ -17,29 +17,11 @@ struct EventRowView: View {
                     .font(.body.weight(.medium))
                     .lineLimit(2)
 
-                HStack(spacing: 6) {
-                    Text(EventFormatting.recurringDate(event, now: now, calendar: calendar))
-                    Text("·")
-                    Text(event.groupName)
-                        .lineLimit(1)
-                    if let badge = EventFormatting.yearsBadge(event, now: now, calendar: calendar) {
-                        Text("·")
-                        if event.milestoneYears(from: now, calendar: calendar) != nil {
-                            // A milestone year gets the accent and a spark, nothing louder:
-                            // the row stays scannable and ordinary years stay quiet.
-                            HStack(spacing: 3) {
-                                Image(systemName: "sparkles")
-                                Text(badge)
-                            }
-                            .fontWeight(.medium)
-                            .foregroundStyle(Color.accentColor)
-                        } else {
-                            Text(badge)
-                        }
-                    }
-                }
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+                // One concatenated Text, so at large sizes it wraps as a sentence rather
+                // than squeezing each fragment into its own column.
+                subtitle
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
 
             Spacer(minLength: 8)
@@ -53,5 +35,22 @@ struct EventRowView: View {
         .padding(.vertical, 2)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(EventFormatting.accessibilityLabel(event, now: now, calendar: calendar))
+    }
+
+    private var subtitle: Text {
+        var text = Text("\(EventFormatting.recurringDate(event, now: now, calendar: calendar)) · \(event.groupName)")
+        if let badge = EventFormatting.yearsBadge(event, now: now, calendar: calendar) {
+            text = text + Text(" · ")
+            if event.milestoneYears(from: now, calendar: calendar) != nil {
+                // A milestone year gets the accent and a spark, nothing louder:
+                // the row stays scannable and ordinary years stay quiet.
+                text = text + Text("\(Image(systemName: "sparkles")) \(badge)")
+                    .fontWeight(.medium)
+                    .foregroundStyle(Color.accentColor)
+            } else {
+                text = text + Text(badge)
+            }
+        }
+        return text
     }
 }

@@ -62,7 +62,7 @@ final class DateEvent {
         if let date = AnnualDate(month: month, day: day, year: year) {
             return date
         }
-        Self.logger.fault("Stored components \(self.month)/\(self.day) for event \(self.uuid) are invalid; showing 1 January")
+        Self.logger.fault("Stored components \(self.month, privacy: .private)/\(self.day, privacy: .private) for event \(self.uuid) are invalid; showing 1 January")
         return AnnualDate(month: 1, day: 1)!
     }
 

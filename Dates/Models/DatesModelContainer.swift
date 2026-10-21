@@ -80,7 +80,7 @@ enum DatesModelContainer {
         guard try context.fetch(FetchDescriptor<DateEvent>()).isEmpty else { return }
         let groups = try context.fetch(FetchDescriptor<EventGroup>())
 
-        let calendar = Calendar.current
+        let calendar = Calendar.current.gregorian
         func annual(daysAhead: Int, turning: Int?) -> AnnualDate? {
             guard let occurrence = calendar.date(byAdding: .day, value: daysAhead, to: now) else { return nil }
             let components = calendar.dateComponents([.year, .month, .day], from: occurrence)

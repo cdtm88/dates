@@ -12,6 +12,7 @@ struct EventDetailView: View {
     @Query private var matches: [DateEvent]
     @State private var isEditing = false
     @State private var isConfirmingDelete = false
+    @State private var deleteError: String?
 
     init(eventID: UUID, store: EventStore, now: Date) {
         self.eventID = eventID
@@ -94,13 +95,22 @@ struct EventDetailView: View {
         ) {
             Button("Delete", role: .destructive) {
                 Task {
-                    try? await store.deleteEvent(event)
-                    dismiss()
+                    do {
+                        try await store.deleteEvent(event)
+                        dismiss()
+                    } catch {
+                        deleteError = error.localizedDescription
+                    }
                 }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This removes the date and its reminders.")
+        }
+        .alert("Delete failed", isPresented: .constant(deleteError != nil)) {
+            Button("OK") { deleteError = nil }
+        } message: {
+            Text(deleteError ?? "")
         }
     }
 }

@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import UserNotifications
 import DatesKit
 
@@ -8,6 +9,9 @@ struct SettingsView: View {
     @Bindable var settings: AppSettings
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var authorizationStatus: UNAuthorizationStatus?
     @State private var isExportingCSV = false
     @State private var exportDocument: CSVExportDocument?
@@ -40,18 +44,35 @@ struct SettingsView: View {
                     Text(reminderFooter)
                 }
 
+                if authorizationStatus == .notDetermined, store.queueSummary?.totalEventCount ?? 0 > 0 {
+                    Section {
+                        Label("Reminders aren't on yet", systemImage: "bell.badge")
+                        Button("Turn On Reminders") {
+                            Task {
+                                await store.requestNotificationAuthorisation()
+                                await refreshDiagnostics()
+                            }
+                        }
+                    }
+                }
+
                 if let authorizationStatus, authorizationStatus == .denied {
                     Section {
                         Label("Notifications are turned off", systemImage: "bell.slash")
                         Text("Your dates are all still here. Turn notifications on in the Settings app to get reminders.")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
+                        Button("Open Settings") {
+                            if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+                                openURL(url)
+                            }
+                        }
                     }
                 }
 
                 if let summary = store.queueSummary, summary.failedCount > 0 {
                     Section {
-                        Label("\(summary.failedCount) reminders could not be scheduled", systemImage: "exclamationmark.triangle")
+                        Label("^[\(summary.failedCount) reminder](inflect: true) could not be scheduled", systemImage: "exclamationmark.triangle")
                             .foregroundStyle(.red)
                     }
                 }
@@ -85,11 +106,9 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    LabeledContent("iCloud sync", value: hasICloudAccount ? "On" : "Off")
+                    LabeledContent("iCloud sync", value: isSyncing ? "On" : "Off")
                 } footer: {
-                    Text(hasICloudAccount
-                         ? "Your dates sync privately through iCloud to your other devices."
-                         : "Sign in to iCloud in the Settings app to sync your dates across your devices. Everything stays on this device until then.")
+                    Text(syncFooter)
                 }
 
                 // The lockup is composed here rather than using the rendered wordmark PNGs,
@@ -106,7 +125,7 @@ struct SettingsView: View {
                                 .scaledToFit()
                                 .frame(width: 26, height: 26)
                             Text("Dates")
-                                .font(.system(size: 21, weight: .bold))
+                                .font(.title2.bold())
                                 .foregroundStyle(.primary)
                         }
                         .accessibilityHidden(true)
@@ -149,6 +168,10 @@ struct SettingsView: View {
                 Text(exportResultMessage ?? "")
             }
             .task { await refreshDiagnostics() }
+            // Back from the Settings app, where the user may just have turned notifications on.
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { Task { await refreshDiagnostics() } }
+            }
             .onChange(of: settings.notificationTime) {
                 // Changing the time invalidates every pending fire date (NOTIF-09).
                 Task {
@@ -193,11 +216,26 @@ struct SettingsView: View {
         return base + " All \(summary.totalEventCount) dates have reminders scheduled through \(through)."
     }
 
-    /// Whether the device has an iCloud account at all — the user-fixable half of sync.
-    /// The store handles the rest (SwiftData pauses sync without an account and catches
-    /// up when one appears), so this row is a status hint, not a switch.
-    private var hasICloudAccount: Bool {
-        FileManager.default.ubiquityIdentityToken != nil
+    /// Whether the open store is the CloudKit-backed one. The account alone is not enough:
+    /// the container is chosen at launch, so an account added since then, or a CloudKit
+    /// store that failed to open, leaves this session local-only.
+    private var isSyncing: Bool {
+        modelContext.container.configurations.contains { $0.cloudKitContainerIdentifier != nil }
+    }
+
+    private var syncFooter: String {
+        if isSyncing {
+            return "Your dates sync privately through iCloud to your other devices."
+        }
+        #if DEBUG
+        // Debug builds never open the CloudKit store (see DatesApp.makeBestContainer).
+        return "iCloud sync is off in development builds."
+        #else
+        if FileManager.default.ubiquityIdentityToken != nil {
+            return "Close Dates and open it again to start syncing with iCloud."
+        }
+        return "Sign in to iCloud in the Settings app to sync your dates across your devices. Everything stays on this device until then."
+        #endif
     }
 
     private func refreshDiagnostics() async {

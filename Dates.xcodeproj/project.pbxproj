@@ -37,6 +37,7 @@
 		B55D728316C15A57F2688988 /* UpcomingDatesWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E205A5ADC7B1806DB6B00BA /* UpcomingDatesWidget.swift */; };
 		B9A3D7269317004253413984 /* EventDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1500FA33C3B6720B8E26D377 /* EventDetailView.swift */; };
 		B9C0D8F8B197CC515677C73B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF71E0BE8E081BB74EB86A6F /* SettingsView.swift */; };
+		BB1888EE398CAA2207693AF2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 27A5CCFD00FA087AD9E9A7AD /* Assets.xcassets */; };
 		BC697B3378405F2ED28241C8 /* GroupsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8A9D4C1C8E1FB610053A3A /* GroupsView.swift */; };
 		C242406DB2CB069F13A2A146 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65DB6D3122105A77A07834D /* NotificationScheduler.swift */; };
 		DD0C747E2D894042A7787D5C /* DatesWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 999B0150F61EBD1FBEBD3F62 /* DatesWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -91,6 +92,7 @@
 		1500FA33C3B6720B8E26D377 /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
 		2519F07B42CDF26B754B2FC9 /* DatesWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesWidgetBundle.swift; sourceTree = "<group>"; };
 		266AB6DA98285D348FE0AFA2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		27A5CCFD00FA087AD9E9A7AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3525B005E7629577B567E7A0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		378C969B90DA71665CC1CDF2 /* EventListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListView.swift; sourceTree = "<group>"; };
 		3807D7BB70F95701291B0922 /* CSVExportDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVExportDocument.swift; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 		4F4E60C9EFDE2BD38461C0EB /* DatesWidget */ = {
 			isa = PBXGroup;
 			children = (
+				27A5CCFD00FA087AD9E9A7AD /* Assets.xcassets */,
 				C70873F25F348FB19F9DFB6E /* DatesWidget.entitlements */,
 				2519F07B42CDF26B754B2FC9 /* DatesWidgetBundle.swift */,
 				3525B005E7629577B567E7A0 /* Info.plist */,
@@ -332,6 +335,7 @@
 			buildConfigurationList = 9920BFC5D943D9E04642FDF8 /* Build configuration list for PBXNativeTarget "DatesWidget" */;
 			buildPhases = (
 				492760621693FCCD3E20622A /* Sources */,
+				C123E9FCC62372084AA4CF00 /* Resources */,
 				8B4D1026AB5E708D6D158E70 /* Frameworks */,
 			);
 			buildRules = (
@@ -449,6 +453,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C123E9FCC62372084AA4CF00 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB1888EE398CAA2207693AF2 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -536,6 +548,7 @@
 		3185B1323D22BD13C1944974 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DatesWidget/DatesWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -597,6 +610,7 @@
 		50BBB2E41EA9E22D01F51C30 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DatesWidget/DatesWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

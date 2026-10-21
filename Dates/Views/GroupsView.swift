@@ -12,6 +12,7 @@ struct GroupsView: View {
     @State private var editingGroup: EventGroup?
     @State private var isAddingGroup = false
     @State private var groupPendingDeletion: EventGroup?
+    @State private var deleteError: String?
 
     var body: some View {
         NavigationStack {
@@ -67,27 +68,44 @@ struct GroupsView: View {
                 Button("Delete", role: .destructive) {
                     guard let group = groupPendingDeletion else { return }
                     groupPendingDeletion = nil
-                    Task { try? await store.deleteGroup(group) }
+                    Task {
+                        do {
+                            try await store.deleteGroup(group)
+                        } catch {
+                            deleteError = error.localizedDescription
+                        }
+                    }
                 }
                 Button("Cancel", role: .cancel) { groupPendingDeletion = nil }
             } message: {
                 Text("Its dates move to \(SeedGroups.ungroupedName).")
             }
+            .alert("Delete failed", isPresented: .constant(deleteError != nil)) {
+                Button("OK") { deleteError = nil }
+            } message: {
+                Text(deleteError ?? "")
+            }
         }
     }
 
     private func row(for group: EventGroup) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            HStack {
-                Text(group.name)
-                Spacer()
-                Text("\(group.eventCount)")
+        HStack {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(group.name)
+                    Spacer()
+                    Text("\(group.eventCount)")
+                        .foregroundStyle(.secondary)
+                        .font(.footnote)
+                }
+                Text(EventFormatting.offsetsSummary(group.defaultOffsets))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-                    .font(.footnote)
             }
-            Text(EventFormatting.offsetsSummary(group.defaultOffsets))
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            // The row opens the group's form, so it carries the usual disclosure cue.
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.tertiary)
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
@@ -97,7 +115,7 @@ struct GroupsView: View {
 
 /// Create or rename a group and set its default offsets.
 struct GroupFormView: View {
-    enum Mode: Equatable {
+    enum Mode {
         case create
         case edit(EventGroup)
 
@@ -116,6 +134,7 @@ struct GroupFormView: View {
     @State private var name = ""
     @State private var offsets: OffsetSelection = .dayOf
     @State private var errorMessage: String?
+    @State private var isSaving = false
 
     var body: some View {
         NavigationStack {
@@ -145,7 +164,7 @@ struct GroupFormView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { Task { await save() } }
-                        .disabled(!EventValidation.isValidName(name))
+                        .disabled(!EventValidation.isValidName(name) || isSaving)
                 }
             }
             .onAppear {
@@ -158,6 +177,9 @@ struct GroupFormView: View {
     }
 
     private func save() async {
+        isSaving = true
+        defer { isSaving = false }
+
         do {
             switch mode {
             case .create:

@@ -12,28 +12,17 @@ enum EventFormatting {
         return formatter
     }()
 
-    private static let dayMonthAndYear: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("d MMMM y")
-        return formatter
-    }()
-
     private static let weekdayDayMonth: DateFormatter = {
         let formatter = DateFormatter()
         formatter.setLocalizedDateFormatFromTemplate("EEEE d MMMM")
         return formatter
     }()
 
-    private static let timeOnly: DateFormatter = {
+    /// Cached once: the picker asks for these twelve times per redraw. Gregorian, so the
+    /// names match the stored month numbers whatever calendar the device uses.
+    private static let monthNames: [String] = {
         let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        formatter.dateStyle = .none
-        return formatter
-    }()
-
-    /// Cached once: the picker asks for these twelve times per redraw.
-    static let monthNames: [String] = {
-        let formatter = DateFormatter()
+        formatter.calendar = Calendar.current.gregorian
         return formatter.standaloneMonthSymbols ?? formatter.monthSymbols ?? []
     }()
 
@@ -47,7 +36,7 @@ enum EventFormatting {
         guard let occurrence = event.nextOccurrence(from: now, calendar: calendar) else {
             return "\(event.date.day)/\(event.date.month)"
         }
-        dayAndMonth.calendar = calendar
+        dayAndMonth.calendar = calendar.gregorian
         dayAndMonth.timeZone = calendar.timeZone
         return dayAndMonth.string(from: occurrence)
     }
@@ -55,7 +44,7 @@ enum EventFormatting {
     /// "Friday 12 September" — used in the detail view where there is room.
     static func nextOccurrenceLong(_ event: EventSnapshot, now: Date, calendar: Calendar = .current) -> String {
         guard let occurrence = event.nextOccurrence(from: now, calendar: calendar) else { return "—" }
-        weekdayDayMonth.calendar = calendar
+        weekdayDayMonth.calendar = calendar.gregorian
         weekdayDayMonth.timeZone = calendar.timeZone
         return weekdayDayMonth.string(from: occurrence)
     }
@@ -97,13 +86,6 @@ enum EventFormatting {
     static func offsetsSummary(_ offsets: OffsetSelection) -> String {
         guard !offsets.isEmpty else { return "No alerts" }
         return offsets.displayOrderedOffsets.map(\.shortLabel).joined(separator: ", ")
-    }
-
-    static func notificationTime(_ time: TimeOfDay, calendar: Calendar = .current) -> String {
-        guard let date = time.applied(to: Date(), calendar: calendar) else {
-            return String(format: "%02d:%02d", time.hour, time.minute)
-        }
-        return timeOnly.string(from: date)
     }
 
     /// A single spoken sentence per row, so VoiceOver reads one coherent line rather than

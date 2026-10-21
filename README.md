@@ -38,7 +38,7 @@ not on the App Store or TestFlight, and device notification testing is still blo
 paid Apple Developer Program membership. Expect the data model to be stable and the release
 plumbing to be absent.
 
-Test coverage is real: 143 automated tests across the domain logic, the persistence and
+Test coverage is real: 147 automated tests across the domain logic, the persistence and
 scheduling layer, and the UI flows, all run on every pull request.
 
 ## Built with
@@ -80,9 +80,9 @@ cd dates
 open Dates.xcodeproj
 ```
 
-Pick an iPhone simulator and run. Signing is set to Automatic with no team, so the project
-opens without a paid account; set your own team under Signing and Capabilities to run on a
-physical device.
+Pick an iPhone simulator and run. Signing is Automatic, with the team set as
+`DEVELOPMENT_TEAM` in `project.yml` (not in Xcode's UI, which `xcodegen generate` would
+overwrite). To run on your own device, change it there and regenerate.
 
 The Xcode project is generated, so adding a source file means running `xcodegen generate`
 and committing the result. CI fails the build if the two fall out of sync. Read

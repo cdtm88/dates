@@ -257,4 +257,13 @@ final class EventImportTests: XCTestCase {
         let outcome = decode("Name,Month,Day\n'Awa,3,14\n")
         XCTAssertEqual(outcome.candidates.map(\.name), ["'Awa"])
     }
+
+    func testRefusesAFileWithMoreRowsThanTheCap() {
+        let rows = (0...EventCSV.maxRows).map { "Person \($0),1,1" }
+        let text = (["Name,Month,Day"] + rows).joined(separator: "\n")
+        XCTAssertThrowsError(try EventCSV.decode(text)) { error in
+            XCTAssertEqual(error as? EventCSV.FileError, .tooManyRows(limit: EventCSV.maxRows))
+        }
+        XCTAssertNoThrow(try EventCSV.decode((["Name,Month,Day"] + rows.dropLast()).joined(separator: "\n")))
+    }
 }

@@ -1,6 +1,7 @@
 import Foundation
 import BackgroundTasks
 import SwiftData
+import WidgetKit
 import DatesKit
 
 /// Reads events off the main actor so a background top-up never touches the UI context.
@@ -33,14 +34,19 @@ enum BackgroundRefresh {
         }
     }
 
-    /// The work performed when iOS grants a run: re-plan and rewrite the queue.
+    /// The work performed when iOS grants a run: re-plan and rewrite the queue, and refresh
+    /// the widget, which may be showing events that have since synced in from another device.
     static func performRefresh(container: ModelContainer, notificationTime: TimeOfDay) async {
+        defer { scheduleNextRefresh() }
         let provider = EventSnapshotProvider(modelContainer: container)
-        let snapshots = (try? await provider.snapshots()) ?? []
+        // A failed read must not reach `reschedule`: an empty list there cancels every
+        // pending reminder and schedules none.
+        guard let snapshots = try? await provider.snapshots() else { return }
+        WidgetBridge.write(snapshots.map(WidgetEvent.init))
+        WidgetCenter.shared.reloadAllTimelines()
         await NotificationScheduler.shared.reschedule(
             snapshots: snapshots,
             notificationTime: notificationTime
         )
-        scheduleNextRefresh()
     }
 }

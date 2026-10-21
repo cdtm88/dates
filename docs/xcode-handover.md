@@ -51,9 +51,10 @@ xcodebuild test -project Dates.xcodeproj -scheme Dates \
   -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
-Signing is Automatic with no team set, so it opens without a paid account. The Apple Developer
-Program membership is still unpurchased — a hard blocker for Phase 08 and for on-device
-notification testing.
+Signing is Automatic, with the team set as `DEVELOPMENT_TEAM` in `project.yml` (Xcode's
+Signing UI would be overwritten by `xcodegen generate`). The Apple Developer Program
+membership is still unpurchased — a hard blocker for release and for on-device notification
+testing. The remaining manual release steps are in `docs/app-store-release.md`.
 
 ## Things that will not show up as a failing build
 
@@ -76,8 +77,9 @@ notification testing.
   `addPersistentStore … Failed to create file; code = 2` followed by
   `Recovery attempt … was successful!`. The parent directory does not exist yet and CoreData
   creates it. It is noise, not a bug — do not chase it.
-- **AppIcon is an empty placeholder.** Expect a build warning. It blocks App Store submission
-  but not TestFlight or simulator runs. Phase 08 problem.
+- **The 1024 app icon must stay opaque and full-bleed.** App Store Connect rejects an icon
+  with an alpha channel (ITMS-90717); iOS applies the rounded mask itself. Only the dark
+  variant may be transparent. Check with `sips -g hasAlpha`.
 
 ## Invariants — do not "fix" these
 
