@@ -5,8 +5,6 @@ import DatesKit
 /// What an import source produced, handed to the review sheet (Phase 05).
 struct ImportPayload: Identifiable, Equatable {
     let id = UUID()
-    /// "Calendar" or the file's name — the review title says where the rows came from.
-    let sourceName: String
     let candidates: [ImportCandidate]
     /// CSV rows that failed validation, each with its line number and reason (IMP-06).
     /// Always empty for the calendar route, which has no rows to reject.
@@ -49,7 +47,7 @@ struct ImportReviewView: View {
                     rejectedSection
                 }
             }
-            .navigationTitle("Import from \(payload.sourceName)")
+            .navigationTitle("Import")
             .navigationBarTitleDisplayMode(.inline)
             .horizontalBarsOnly()
             .toolbar {
@@ -153,16 +151,7 @@ struct ImportReviewView: View {
     }
 
     private func subtitle(for candidate: ImportCandidate) -> String {
-        // Gregorian, as stored; 2000 is a leap year, so 29 February formats when no year is set.
-        let calendar = Calendar.current.gregorian
-        var style = Date.FormatStyle(calendar: calendar, timeZone: calendar.timeZone).day().month(.wide)
-        if candidate.date.year != nil {
-            style = style.year()
-        }
-        let components = DateComponents(year: candidate.date.year ?? 2000, month: candidate.date.month, day: candidate.date.day)
-        let date = calendar.date(from: components)?.formatted(style)
-            ?? "\(candidate.date.day)/\(candidate.date.month)"
-        var parts = [candidate.type.displayName, date]
+        var parts = [candidate.type.displayName, EventFormatting.storedDate(candidate.date)]
         if let groupName = candidate.groupName {
             parts.append(groupName)
         }

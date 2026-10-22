@@ -214,7 +214,7 @@ struct SettingsView: View {
               let horizon = summary.coverageHorizon
         else { return base }
 
-        let through = horizon.formatted(date: .abbreviated, time: .omitted)
+        let through = horizon.formatted(.dateTime.day().month(.abbreviated).year().locale(.dateDisplay()))
         if summary.wasTruncated {
             return base + " Your nearest \(summary.coveredEventCount) of \(summary.totalEventCount) dates have reminders scheduled, through \(through); the rest join as their day approaches."
         }

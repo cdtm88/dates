@@ -6,17 +6,18 @@ import DatesKit
 /// Formatters are cached: building a `DateFormatter` per row is the classic way to lose the
 /// 60fps budget on a long list (PERF-02).
 enum EventFormatting {
-    private static let dayAndMonth: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("d MMMM")
-        return formatter
-    }()
+    private static let dayAndMonth = formatter("d MMMM")
+    private static let weekdayDayMonth = formatter("EEEE d MMMM")
+    private static let dayMonthYear = formatter("d MMMM y")
 
-    private static let weekdayDayMonth: DateFormatter = {
+    /// Every date shares one locale, so dates with and without a year read in the same
+    /// order (see `Locale.dateDisplay`).
+    private static func formatter(_ template: String) -> DateFormatter {
         let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("EEEE d MMMM")
+        formatter.locale = .dateDisplay()
+        formatter.setLocalizedDateFormatFromTemplate(template)
         return formatter
-    }()
+    }
 
     /// Cached once: the picker asks for these twelve times per redraw. Gregorian, so the
     /// names match the stored month numbers whatever calendar the device uses.
@@ -39,6 +40,19 @@ enum EventFormatting {
         dayAndMonth.calendar = calendar.gregorian
         dayAndMonth.timeZone = calendar.timeZone
         return dayAndMonth.string(from: occurrence)
+    }
+
+    /// "3 December 1991", or "3 December" when the year is unknown — a stored date, as the
+    /// import review lists it.
+    static func storedDate(_ date: AnnualDate) -> String {
+        // Gregorian, as stored; 2000 is a leap year, so 29 February formats when no year is set.
+        let calendar = Calendar.current.gregorian
+        let components = DateComponents(year: date.year ?? 2000, month: date.month, day: date.day)
+        guard let day = calendar.date(from: components) else { return "\(date.day)/\(date.month)" }
+        let formatter = date.year == nil ? dayAndMonth : dayMonthYear
+        formatter.calendar = calendar
+        formatter.timeZone = calendar.timeZone
+        return formatter.string(from: day)
     }
 
     /// "Friday 12 September" — used in the detail view where there is room.
