@@ -40,6 +40,7 @@
 		BB1888EE398CAA2207693AF2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 27A5CCFD00FA087AD9E9A7AD /* Assets.xcassets */; };
 		BC697B3378405F2ED28241C8 /* GroupsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8A9D4C1C8E1FB610053A3A /* GroupsView.swift */; };
 		C242406DB2CB069F13A2A146 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65DB6D3122105A77A07834D /* NotificationScheduler.swift */; };
+		D3720C3E2E31D33158C808B5 /* HorizontalBars.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2DC70E0EC6D0C7F4CDA353 /* HorizontalBars.swift */; };
 		DD0C747E2D894042A7787D5C /* DatesWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 999B0150F61EBD1FBEBD3F62 /* DatesWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DE6B87472FC274EE5D978285 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8163408D7D8FBA6170D57B /* PersistenceTests.swift */; };
 		DF9892E72A4608EF34789288 /* EventRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA524433B51280F2C5AFEB3 /* EventRowView.swift */; };
@@ -131,6 +132,7 @@
 		EA83EF3F1E7DCADF4CEF742E /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		EEBE5C59C6B427D8090E9FA4 /* DatesModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesModelContainer.swift; sourceTree = "<group>"; };
 		F6CA71650233D487FEFECA9A /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
+		FA2DC70E0EC6D0C7F4CDA353 /* HorizontalBars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalBars.swift; sourceTree = "<group>"; };
 		FF8163408D7D8FBA6170D57B /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -168,6 +170,7 @@
 				4EB04B02B4F0096D091E3120 /* AppSettings.swift */,
 				B36AEC3D70DCCF826EB5157C /* DayTicker.swift */,
 				F6CA71650233D487FEFECA9A /* EventFormatting.swift */,
+				FA2DC70E0EC6D0C7F4CDA353 /* HorizontalBars.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -514,6 +517,7 @@
 				DF9892E72A4608EF34789288 /* EventRowView.swift in Sources */,
 				3416641C92E45D976D8E926F /* EventStore.swift in Sources */,
 				BC697B3378405F2ED28241C8 /* GroupsView.swift in Sources */,
+				D3720C3E2E31D33158C808B5 /* HorizontalBars.swift in Sources */,
 				8BD6F79CCF0CD4180A371B58 /* ImportFlow.swift in Sources */,
 				8551E69FF010E8D1F547E0BB /* ImportReviewView.swift in Sources */,
 				83D382A64E563415697C012B /* NotificationRouter.swift in Sources */,

@@ -38,7 +38,7 @@ not on the App Store or TestFlight, and device notification testing is still blo
 paid Apple Developer Program membership. Expect the data model to be stable and the release
 plumbing to be absent.
 
-Test coverage is real: 148 automated tests across the domain logic, the persistence and
+Test coverage is real: 149 automated tests across the domain logic, the persistence and
 scheduling layer, and the UI flows, all run on every pull request.
 
 ## Built with

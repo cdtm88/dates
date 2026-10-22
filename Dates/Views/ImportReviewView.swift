@@ -51,6 +51,7 @@ struct ImportReviewView: View {
             }
             .navigationTitle("Import from \(payload.sourceName)")
             .navigationBarTitleDisplayMode(.inline)
+            .horizontalBarsOnly()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
