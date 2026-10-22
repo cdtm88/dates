@@ -228,7 +228,7 @@ enum WidgetFormatting {
         guard let occurrence = event.date.nextOccurrence(from: now, calendar: calendar) else {
             return "\(event.date.day)/\(event.date.month)"
         }
-        return occurrence.formatted(.dateTime.day().month(.abbreviated))
+        return occurrence.formatted(.dateTime.day().month(.abbreviated).locale(.dateDisplay()))
     }
 
     static func subtitle(_ event: WidgetEvent, now: Date, calendar: Calendar = .current) -> String {

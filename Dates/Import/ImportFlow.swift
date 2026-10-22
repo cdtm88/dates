@@ -21,7 +21,7 @@ final class ImportFlow {
             defer { isFetchingContacts = false }
             do {
                 let candidates = try await ContactsImporter.fetchCandidates(now: now)
-                payload = ImportPayload(sourceName: "Contacts", candidates: candidates, rejectedRows: [])
+                payload = ImportPayload(candidates: candidates, rejectedRows: [])
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -52,7 +52,6 @@ final class ImportFlow {
             let text = String(decoding: try Data(contentsOf: url), as: UTF8.self)
             let outcome = try EventCSV.decode(text)
             payload = ImportPayload(
-                sourceName: url.lastPathComponent,
                 candidates: outcome.candidates,
                 rejectedRows: outcome.rejectedRows
             )
