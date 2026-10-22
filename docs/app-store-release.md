@@ -35,9 +35,9 @@ app and widget versions, and Debug-only test hooks.
   - Subtitle, description and keywords: `docs/app-store-listing.md`.
   - Category: Productivity or Lifestyle.
   - Copyright.
-- [ ] Screenshots: upload `assets/screenshots/app-store/*-6.9in.png` (1320×2868). To
-      regenerate, use the iPhone 17 Pro Max simulator with `--uitest --demo` and
-      `simctl status_bar … override --time 9:41`, then flatten the alpha.
+- [ ] Screenshots: upload `assets/screenshots/app-store/*-6.9in.png` (1320×2868, in
+      order). To regenerate, capture the screens named in `Tools/compose_screenshots.py`
+      and run it.
 - [ ] Export compliance is already answered by `ITSAppUsesNonExemptEncryption = false`.
 - [ ] Review notes: no login, contacts import is optional, and iCloud sync is automatic.
 
