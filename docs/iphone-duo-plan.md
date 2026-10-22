@@ -43,10 +43,22 @@ plus verification.
 - Manual reserved-region displacement: there are no hand-placed controls.
 - Tabletop layout (optional, aimed at media apps), multi-scene, a large widget.
 
-## Open question
+## Open question (resolved)
 The app is portrait-only. If Phase 0 shows the inner display letterboxes or
 compatibility-modes a portrait-locked app, enable landscape (the list and form already
 work in it). Otherwise keep portrait.
+
+Resolved 2026-10-22: the open Duo runs the app full screen across the inner display,
+list and detail side by side, with no letterboxing. Portrait-only stays.
+
+## Results (2026-10-22)
+- Closed (outer display): toolbars move into the vertical bar; text-button sheets keep
+  horizontal bars. All app tests pass.
+- Open (inner display): split view fills the screen. All UI tests pass, including
+  `testSelectingADateShowsItBesideTheList` (skips on compact iPhones).
+- The hinge is driven from DeviceHub's posture buttons (bottom-right of the device
+  window); `simctl` cannot change it.
+- No Duo screenshot size in App Store Connect yet; the 6.9in set stands.
 
 ## Sources
 - https://developer.apple.com/videos/play/tech-talks/111466/

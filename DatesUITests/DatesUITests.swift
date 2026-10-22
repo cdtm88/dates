@@ -42,6 +42,21 @@ final class DatesUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["No dates yet"].exists)
     }
 
+    /// Regular width (an open iPhone Duo) shows the list and the selected date side by side.
+    /// Compact iPhones push instead, which the other tests already walk.
+    func testSelectingADateShowsItBesideTheList() throws {
+        addEvent(named: "Ada Lovelace")
+        let placeholder = app.staticTexts["No date selected"]
+        guard placeholder.waitForExistence(timeout: 5) else {
+            throw XCTSkip("Compact width: no split view on this device")
+        }
+
+        tapWhenReady(app.staticTexts["Ada Lovelace"].firstMatch)
+
+        XCTAssertTrue(placeholder.waitForNonExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Add a date"].firstMatch.isHittable, "the list column must stay on screen")
+    }
+
     func testSaveIsDisabledUntilANameIsEntered() {
         app.buttons["Add a date"].firstMatch.tap()
 
@@ -204,9 +219,14 @@ final class DatesUITests: XCTestCase {
     /// element until the menu is scrolled towards it.
     private func scrollToMenuOption(_ label: String) -> Bool {
         let option = app.buttons[label]
+        // Swipe the menu itself: on a wide screen (an open iPhone Duo) it is not under the
+        // window's centre, where `app.swipeUp()` would land. The open menu is the last
+        // collection view (after the form); its rows load lazily, so it cannot be found by
+        // the option it has yet to show.
+        let collections = app.collectionViews
         for _ in 0..<5 {
             if option.exists && option.isHittable { return true }
-            app.swipeUp()
+            collections.element(boundBy: max(collections.count - 1, 0)).swipeUp()
         }
         return option.exists && option.isHittable
     }
