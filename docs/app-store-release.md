@@ -32,7 +32,7 @@ app and widget versions, and Debug-only test hooks.
 - [ ] Age rating questionnaire: all "None", which gives 4+.
 - [ ] Listing:
   - Name: check that "Dates" is available.
-  - Subtitle, description and keywords.
+  - Subtitle, description and keywords: `docs/app-store-listing.md`.
   - Category: Productivity or Lifestyle.
   - Copyright.
 - [ ] Screenshots: upload `assets/screenshots/app-store/*-6.9in.png` (1320×2868). To
