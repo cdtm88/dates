@@ -24,7 +24,7 @@ app and widget versions, and Debug-only test hooks.
 
 ## App Store Connect
 
-- [ ] Privacy policy URL. This is required even though nothing is collected. It should
+- [ ] Privacy policy URL: `docs/privacy.md`, served at https://cdtm88.github.io/dates/privacy once GitHub Pages is on (main, /docs). This is required even though nothing is collected. It should
       cover reading contacts on the device, syncing through the user's own iCloud
       private database, and having no analytics.
 - [ ] Support URL.
