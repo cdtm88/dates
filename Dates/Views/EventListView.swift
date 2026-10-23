@@ -23,6 +23,8 @@ struct EventListView: View {
         var id: String { rawValue }
     }
 
+    /// The scheme the list is drawn in: the chosen appearance, or the device's under System.
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selection: UUID?
     @State private var columnVisibility = NavigationSplitViewVisibility.all
     @State private var searchText = ""
@@ -44,6 +46,10 @@ struct EventListView: View {
                         GroupsView(store: store)
                     case .settings:
                         SettingsView(store: store, settings: settings)
+                            // An open sheet misses a change to the root's scheme, and this
+                            // is the sheet where it changes. Under System it takes the list's
+                            // resolved scheme: a nil preference never undoes a forced one.
+                            .preferredColorScheme(settings.appearance.colorScheme ?? colorScheme)
                     }
                 }
         } detail: {

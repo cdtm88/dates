@@ -86,26 +86,27 @@ struct EventDetailView: View {
 
             Section {
                 Button("Delete date", role: .destructive) { isConfirmingDelete = true }
-            }
-        }
-        .confirmationDialog(
-            "Delete \(event.name)?",
-            isPresented: $isConfirmingDelete,
-            titleVisibility: .visible
-        ) {
-            Button("Delete", role: .destructive) {
-                Task {
-                    do {
-                        try await store.deleteEvent(event)
-                        dismiss()
-                    } catch {
-                        deleteError = error.localizedDescription
+                    // Attached here, not to the List, so the iOS 26 popover points at this row.
+                    .confirmationDialog(
+                        "Delete \(event.name)?",
+                        isPresented: $isConfirmingDelete,
+                        titleVisibility: .visible
+                    ) {
+                        Button("Delete", role: .destructive) {
+                            Task {
+                                do {
+                                    try await store.deleteEvent(event)
+                                    dismiss()
+                                } catch {
+                                    deleteError = error.localizedDescription
+                                }
+                            }
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text("This removes the date and its reminders.")
                     }
-                }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This removes the date and its reminders.")
         }
         .alert("Delete failed", isPresented: .constant(deleteError != nil)) {
             Button("OK") { deleteError = nil }
